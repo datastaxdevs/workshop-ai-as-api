@@ -1,0 +1,11 @@
+# cassandra-driver
+fastapi==0.73.0
+# gunicorn
+jupyter==1.0.0
+pandas==1.4.0
+# pypyr
+# python-dotenv
+tensorflow==2.6.0
+keras==2.6.0
+scikit-learn==1.0.2
+# uvicorn
