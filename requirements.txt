@@ -1,8 +1,8 @@
 # cassandra-driver
 fastapi==0.73.0
 # gunicorn
-jupyter==1.0.0
-pandas==1.4.0
+#jupyter==1.0.0
+pandas>=1.3.5
 # pypyr
 # python-dotenv
 tensorflow==2.6.0

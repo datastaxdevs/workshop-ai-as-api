@@ -9,7 +9,7 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
-dataSetFile = '../datasets/spam-dataset.csv'
+dataSetFile = 'training/dataset/spam-dataset.csv'
 
 
 # if __name__ == '__main__':
@@ -72,5 +72,5 @@ training_data = {
     "label_legend_inverted": label_legend_inverted, 
     "tokenizer": tokenizer,
 }
-with open('../training/spam_training_data.pickle', 'wb') as f:
+with open('training/prepared_dataset/spam_training_data.pickle', 'wb') as f:
     pickle.dump(training_data, f)

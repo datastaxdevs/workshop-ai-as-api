@@ -6,13 +6,13 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import tokenizer_from_json
 from tensorflow.keras import models
 
-tokenizer = tokenizer_from_json(open('../trained/spam_tokenizer.json').read())
-metadata = json.load(open('../trained/spam_metadata.json'))
+tokenizer = tokenizer_from_json(open('training/trained_model/spam_tokenizer.json').read())
+metadata = json.load(open('training/trained_model/spam_metadata.json'))
 #   relevant keys:
 #       label_legend_inverted
 #       max_seq_length
 
-model = models.load_model('../trained/spam_model.hdf5')
+model = models.load_model('training/trained_model/spam_model.hdf5')
 # model.summary()
 
 def _predictSpamminess(text, spamModel, pMaxSequence, pLabelLegendInverted, pTokenizer):

@@ -1,2 +1,5 @@
 .env
 __pycache__
+training/prepared_dataset/*.pickle
+training/trained_model/*.json
+training/trained_model/*.hdf5
