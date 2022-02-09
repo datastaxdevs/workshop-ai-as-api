@@ -24,10 +24,11 @@ def onStartup():
     global spamClassifier
     #
     startTime = datetime.datetime.now()
+    settings = getSettings()
     #
     # location of the model data files
     BASE_DIR = pathlib.Path(__file__).resolve().parent
-    MODEL_DIR = BASE_DIR.parent / 'training' / 'trained_model'
+    MODEL_DIR = BASE_DIR.parent / settings.model_directory
     SPAM_HD_PATH = MODEL_DIR / 'spam_model.hdf5'
     SPAM_TOKENIZER_PATH = MODEL_DIR / 'spam_tokenizer.json'
     SPAM_METADATA_PATH = MODEL_DIR / 'spam_metadata.json'
