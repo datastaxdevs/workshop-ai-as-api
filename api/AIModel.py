@@ -81,13 +81,14 @@ class AIModel:
         return float(fVal) if standardTypes else fVal
 
 
-    def predict(self, texts: List[str], standardTypes=True):
+    def predict(self, texts: List[str], standardTypes=True, echoInput=False):
         """
             DOCSTRING
             standardTypes is True for reduction to standard Python types
             ( reason is numpy:
               "TypeError: Object of type float32 is not JSON serializable"
             )
+            if echoInput, attach the input text as well
         """
         xInput = self.getPaddedSequencesFromTexts(texts)
         predictions = self.model.predict(xInput)
@@ -101,9 +102,12 @@ class AIModel:
         ]
         results = [
             {
-                'prediction': labeledPrediction,
-                'top': self.getTopPrediction(labeledPrediction),
+                **{
+                    'prediction': labeledPrediction,
+                    'top': self.getTopPrediction(labeledPrediction),
+                },
+                **({'input': inputText} if echoInput else {}),
             }
-            for labeledPrediction in labeledPredictions
+            for labeledPrediction, inputText in zip(labeledPredictions, texts)
         ]
         return results

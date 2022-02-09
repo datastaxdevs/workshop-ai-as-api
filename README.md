@@ -8,4 +8,16 @@ It seems to work (py3.7)
 
 [And also removed jupyter at that.]
 
+## Curls for the API
 
+```
+curl -s localhost:8000/ | python -mjson.tool
+
+
+curl -XPOST localhost:8000/prediction -d '{"text": "Bla"}' -H 'Content-Type: application/json' | python -mjson.tool
+curl -XPOST localhost:8000/prediction -d '{"text": "Bla", "skip_cache": true}' -H 'Content-Type: application/json' | python -mjson.tool
+
+
+curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE IPHONE", "Mmmm, it seems a really top-notch place! The photos made me hungry..."]}' -H 'Content-Type: application/json' | python -mjson.tool
+curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE IPHONE", "Mmmm, it seems a really top-notch place! The photos made me hungry..."], "echo_input": false}' -H 'Content-Type: application/json' | python -mjson.tool
+```
