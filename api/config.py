@@ -11,6 +11,18 @@ class Settings(BaseSettings):
     # (https://pydantic-docs.helpmanual.io/usage/schema/#field-customization)
     model_version: str = Field(..., env='MODEL_VERSION')
     model_directory: str = Field(..., env='MODEL_DIRECTORY')
+    #
+    astra_db_keyspace: str = Field(..., env='ASTRA_DB_KEYSPACE')
+    astra_db_bundle_path: str = Field(..., env='ASTRA_DB_BUNDLE_PATH')
+    astra_db_client_secret: str = Field(..., env='ASTRA_DB_CLIENT_SECRET')
+    astra_db_client_id: str = Field(..., env='ASTRA_DB_CLIENT_ID')
+
+    secret_fields = {
+        'astra_db_bundle_path',
+        'astra_db_client_secret',
+        'astra_db_client_id',
+        'secret_fields',
+    }
 
     class Config:
         env_file = '.env'

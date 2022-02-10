@@ -3,3 +3,4 @@ __pycache__
 training/prepared_dataset/*.pickle
 training/trained_model/*.json
 training/trained_model/*.hdf5
+astra_secure_bundle/*zip
