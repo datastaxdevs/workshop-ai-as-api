@@ -7,7 +7,7 @@ from api.AIModel import AIModel
 
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
-MODEL_DIR = BASE_DIR.parent / 'training' / 'trained_model'
+MODEL_DIR = BASE_DIR.parent / 'training' / 'trained_model_v1'
 SPAM_HD_PATH = MODEL_DIR / 'spam_model.hdf5'
 SPAM_TOKENIZER_PATH = MODEL_DIR / 'spam_tokenizer.json'
 SPAM_METADATA_PATH = MODEL_DIR / 'spam_metadata.json'

@@ -42,7 +42,7 @@ model.fit(X_train, y_train, validation_data=(X_test, y_test), batch_size=batch_s
 
 # save model
 
-model.save('training/trained_model/spam_model.hdf5')
+model.save('training/trained_model_v1/spam_model.hdf5')
 
 # as a base test TAKE IT AWAY FROM HERE and move to post_Training!):
 def predict(text_str, pMaxSequence=max_seq_length, pTokenizer=tokenizer):
@@ -71,8 +71,8 @@ metadataForExport = {
     'max_seq_length': max_seq_length,
     'max_words': max_words,
 }
-json.dump(metadataForExport, open('training/trained_model/spam_metadata.json', 'w'))
+json.dump(metadataForExport, open('training/trained_model_v1/spam_metadata.json', 'w'))
 
 tokenizerJson = tokenizer.to_json()
-with open('training/trained_model/spam_tokenizer.json', 'w') as f:
+with open('training/trained_model_v1/spam_tokenizer.json', 'w') as f:
     f.write(tokenizerJson)

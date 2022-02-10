@@ -5,6 +5,7 @@
 
 import pathlib
 import datetime
+import logging
 from fastapi import FastAPI, Request
 from cassandra.cqlengine.management import sync_table
 
@@ -25,6 +26,8 @@ DBSession = None
 
 @app.on_event("startup")
 def onStartup():
+    logging.basicConfig(level=logging.INFO)
+    logging.info('     API Startup begins')
     global startTime
     global spamClassifier
     #
@@ -32,6 +35,7 @@ def onStartup():
     settings = getSettings()
     #
     # location of the model data files
+    logging.info('     Loading classifier model')
     API_BASE_DIR = pathlib.Path(__file__).resolve().parent
     MODEL_DIR = API_BASE_DIR.parent / settings.model_directory
     SPAM_HD_PATH = MODEL_DIR / 'spam_model.hdf5'
@@ -45,9 +49,11 @@ def onStartup():
     )
     #
     # Database
+    logging.info('     DB initialization')
     DBSession = initSession()
     sync_table(SMSCacheItem)
     sync_table(SMSCallItem)
+    logging.info('     API Startup completed.')
 
 
 @app.get('/')
@@ -79,6 +85,7 @@ def routePrediction(query: SingleTextQuery, request: Request):
     else:
         cached['from_cache'] = True
         return cached
+
 
 @app.post('/predictions')
 def routePredictions(query: MultipleTextQuery, request: Request):
