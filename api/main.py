@@ -7,6 +7,7 @@ import pathlib
 import datetime
 import logging
 import json
+from typing import List
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from cassandra.cqlengine.management import sync_table
@@ -15,11 +16,33 @@ from cassandra.util import datetime_from_uuid1
 from api.AIModel import AIModel
 from api.config import getSettings
 from api.schema import (SingleTextQuery, MultipleTextQuery)
+from api.schema import (APIInfo, PredictionResult, CallerLogEntry)
 
 from api.database.db import initSession
 from api.database.models import (SpamCacheItem, SpamCallItem)
 
-app = FastAPI()
+apiDescription="""
+Spam Classifier API
+
+A sample API exposing a Keras text classifier model.
+"""
+tags_metadata = [
+    {
+        'name': 'classification',
+        'description': 'Requests for text classifications.',
+    },
+    {
+        'name': 'info',
+        'description': 'Retrieving various types of information from the API.',
+    },
+]
+app = FastAPI(
+    title="Spam Classifier API",
+    description=apiDescription,
+    version="0.1",
+    openapi_tags=tags_metadata,
+)
+
 
 # globally-accessible objects:
 startTime = None
@@ -60,8 +83,8 @@ def onStartup():
     logging.info('     API Startup completed.')
 
 
-@app.get('/')
-def routeMain(request: Request):
+@app.get('/', response_model=APIInfo, tags=['info'])
+def basic_info(request: Request):
     settings = getSettings()
     # prepare to return the non-secret settings...
     info = {
@@ -74,25 +97,25 @@ def routeMain(request: Request):
     # if behind a reverse proxy, we must use X-Forwarded-For ...
     info['caller_id'] = request.client[0]
     # done.
-    return info
+    return APIInfo(**info)
 
 
-@app.post('/prediction')
-def routePrediction(query: SingleTextQuery, request: Request):
-    cached = None if query.skip_cache else readCachedPrediction(query.text)
+@app.post('/prediction', response_model=PredictionResult, tags=['classification'])
+def single_text_prediction(query: SingleTextQuery, request: Request):
+    cached = None if query.skip_cache else readCachedPrediction(query.text, echoInput=query.echo_input)
     storeCallsToLog([query.text], request.client[0])
     if not cached:
-        result = spamClassifier.predict([query.text])[0]
+        result = spamClassifier.predict([query.text], echoInput=query.echo_input)[0]
         cachePrediction(query.text, result)
         result['from_cache'] = False
-        return result
+        return PredictionResult(**result)
     else:
         cached['from_cache'] = True
-        return cached
+        return PredictionResult(**cached)
 
 
-@app.post('/predictions')
-def routePredictions(query: MultipleTextQuery, request: Request):
+@app.post('/predictions', response_model=List[PredictionResult], tags=['classification'])
+def multiple_text_predictions(query: MultipleTextQuery, request: Request):
     """ Ignoring reading from cache, this would simply be:
             results = spamClassifier.predict(query.texts, echoInput=query.echo_input)
             storeCallsToLog(query.texts, request.client[0])
@@ -136,15 +159,27 @@ def routePredictions(query: MultipleTextQuery, request: Request):
         for i, newResult in zip(indicesToDo, resultsDone):
             results[i] = newResult
             results[i]['from_cache'] = False
-    return results
+    return [
+        PredictionResult(**r)
+        for r in results
+    ]
 
 
-@app.get('/recent_log')
-def routeRecentLog(request: Request):
+@app.get('/recent_log', response_model=List[CallerLogEntry], tags=['info'])
+def get_recent_calls_log(request: Request):
     """
-        This may potentially be a long list and we don't want
-        to have it all in memory at once, so we stream the response
+        Get a list of all classification requests issued by the caller in the
+        current hour.
+
+        Internally:
+
+        The response of this endpoint may potentially be a long list and we
+        don't want to have it all in memory at once, so we stream the response
         as it is progressively fetched from the database.
+
+        Note: we do not actually use pydantic conversion in creating
+        the response since it is streamed, but still we want to annotate
+        this endpoint (e.g. for the docs) with 'response_model' above.
     """
     caller_id = request.client[0]
     called_hour = getThisHour()

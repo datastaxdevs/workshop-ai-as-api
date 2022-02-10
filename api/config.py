@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     astra_db_client_secret: str = Field(..., env='ASTRA_DB_CLIENT_SECRET')
     astra_db_client_id: str = Field(..., env='ASTRA_DB_CLIENT_ID')
 
+    # this trick is redundant once we enforce a restricted Pydantic schema
+    # on the route response, but ...
+    # (see https://fastapi.tiangolo.com/tutorial/response-model/#add-an-output-model)
     secret_fields = {
         'astra_db_bundle_path',
         'astra_db_client_secret',
