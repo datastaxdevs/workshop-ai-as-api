@@ -6,15 +6,18 @@
 import pathlib
 import datetime
 import logging
+import json
 from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
 from cassandra.cqlengine.management import sync_table
+from cassandra.util import datetime_from_uuid1
 
 from api.AIModel import AIModel
 from api.config import getSettings
 from api.schema import (SingleTextQuery, MultipleTextQuery)
 
 from api.database.db import initSession
-from api.database.models import (SMSCacheItem, SMSCallItem)
+from api.database.models import (SpamCacheItem, SpamCallItem)
 
 app = FastAPI()
 
@@ -23,6 +26,7 @@ startTime = None
 spamClassifier = None
 DBSession = None
 
+DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 @app.on_event("startup")
 def onStartup():
@@ -51,8 +55,8 @@ def onStartup():
     # Database
     logging.info('     DB initialization')
     DBSession = initSession()
-    sync_table(SMSCacheItem)
-    sync_table(SMSCallItem)
+    sync_table(SpamCacheItem)
+    sync_table(SpamCallItem)
     logging.info('     API Startup completed.')
 
 
@@ -66,7 +70,7 @@ def routeMain(request: Request):
         if k not in settings.secret_fields
     }
     # plus some more fields:
-    info['started_at'] = startTime.strftime('%Y-%m-%dT%H:%M:%S')
+    info['started_at'] = startTime.strftime(DATE_FORMAT)
     # if behind a reverse proxy, we must use X-Forwarded-For ...
     info['caller_id'] = request.client[0]
     # done.
@@ -89,17 +93,96 @@ def routePrediction(query: SingleTextQuery, request: Request):
 
 @app.post('/predictions')
 def routePredictions(query: MultipleTextQuery, request: Request):
-    results = spamClassifier.predict(query.texts, echoInput=query.echo_input)
-    storeCallsToLog(query.texts, request.client[0])
+    """ Ignoring reading from cache, this would simply be:
+            results = spamClassifier.predict(query.texts, echoInput=query.echo_input)
+            storeCallsToLog(query.texts, request.client[0])
+            #
+            for t, r in zip(query.texts, results):
+                cachePrediction(t, r)
+            #
+            return results
+        In the following we get a bit sophisticated and retrieve
+        what we can from cache (doing the rest and re-merging at the end)
+    """
+    # what is in the cache?
+    cachedResults = [
+        None if query.skip_cache else readCachedPrediction(text, echoInput=query.echo_input)
+        for text in query.texts
+    ]
+    # what must be done?
+    notCachedItems = [
+        (i, t)
+        for i, t in enumerate(query.texts)
+        if cachedResults[i] is None
+    ]
+    if notCachedItems != []:
+        indicesToDo, textsToDo = zip(*notCachedItems)
+        resultsDone = spamClassifier.predict(textsToDo, echoInput=query.echo_input)
+    else:
+        indicesToDo, textsToDo = [], []
+        resultsDone = []
     #
-    for t, r in zip(query.texts, results):
+    # log everything and cache new items
+    storeCallsToLog(query.texts, request.client[0])
+    for t, r in zip(textsToDo, resultsDone):
         cachePrediction(t, r)
     #
+    # merge the two and return
+    results = [
+        {**cr, **{'from_cache': True}} if cr is not None else cr
+        for cr in cachedResults
+    ]
+    if indicesToDo != []:
+        for i, newResult in zip(indicesToDo, resultsDone):
+            results[i] = newResult
+            results[i]['from_cache'] = False
     return results
 
 
+@app.get('/recent_log')
+def routeRecentLog(request: Request):
+    """
+        This may potentially be a long list and we don't want
+        to have it all in memory at once, so we stream the response
+        as it is progressively fetched from the database.
+    """
+    caller_id = request.client[0]
+    called_hour = getThisHour()
+    #
+    return StreamingResponse(formatCallerLogJSON(caller_id, called_hour))
+
+
+def formatCallerLogJSON(caller_id, called_hour):
+    """
+    Takes care of making the caller log into a stream of strings
+    forming, overall, a valid JSON. Tricky are the commas.
+    """
+    isFirst = True
+    yield '['
+    for index, item in enumerate(readCallerLog(caller_id, called_hour)):
+        yield '%s%s' % (
+            '' if isFirst else ',',
+            json.dumps({
+                'index': index,
+                'input': item.input,
+                'called_at': datetime_from_uuid1(item.called_at).strftime(DATE_FORMAT),
+            }),
+        )
+        isFirst = False
+    yield ']'
+
+
+def readCallerLog(caller_id, called_hour):
+    query = SpamCallItem.objects().filter(
+        caller_id=caller_id,
+        called_hour=called_hour,
+    )
+    for item in query:
+        yield item
+
+
 def cachePrediction(input, resultMap):
-    cacheItem = SMSCacheItem.create(
+    cacheItem = SpamCacheItem.create(
         input=input,
         result=resultMap['top']['label'],
         confidence=resultMap['top']['value'],
@@ -107,21 +190,23 @@ def cachePrediction(input, resultMap):
     )
 
 
-def readCachedPrediction(input):
+def readCachedPrediction(input, echoInput=False):
     settings = getSettings()
-    cacheItems = SMSCacheItem.filter(
+    cacheItems = SpamCacheItem.filter(
         model_version=settings.model_version,
         input=input,
     )
     cacheItem = cacheItems.first()
     if cacheItem:
         return {
-            'prediction': cacheItem.prediction_map,
-            'top': {
-                'label': cacheItem.result,
-                'value': cacheItem.confidence,
+            **{
+                'prediction': cacheItem.prediction_map,
+                'top': {
+                    'label': cacheItem.result,
+                    'value': cacheItem.confidence,
+                },
             },
-            'input': cacheItem.input,
+            **({'input': cacheItem.input} if echoInput else {}),
         }
     else:
         return None
@@ -130,7 +215,7 @@ def readCachedPrediction(input):
 def storeCallsToLog(inputs, caller_id):
     called_hour = getThisHour()
     for input in inputs:
-        SMSCallItem.create(
+        SpamCallItem.create(
             caller_id=caller_id,
             called_hour=called_hour,
             input=input,
