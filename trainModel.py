@@ -1,78 +1,108 @@
-# training.py
+""" trainModel.py
+
+        Step 2 in the training: the actual training of the model:
+        once initialized, we train it to the prepared data and then
+        save the resulting trained model, ready to make predictions.
+"""
 
 import pickle
 import json
+import sys
 import numpy as np
-
+#
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, Embedding, LSTM, SpatialDropout1D
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-data = pickle.load(open('training/prepared_dataset/spam_training_data.pickle', 'rb'))
+# in
+trainingDumpFile = 'training/prepared_dataset/spam_training_data.pickle'
+# out
+trainedModelFile = 'training/trained_model_v1/spam_model.h5'
+trainedMetadataFile = 'training/trained_model_v1/spam_metadata.json'
+trainedTokenizerFile = 'training/trained_model_v1/spam_tokenizer.json'
 
-X_test = data['X_test']
-X_train = data['X_train']
-y_test = data['y_test']
-y_train = data['y_train']
-label_legend_inverted = data['label_legend_inverted'] # labels_legend_inverted
-label_legend = data['label_legend'] # legend
-max_seq_length = data['max_seq_length'] # max_sequence
-max_words = data['max_words']
-tokenizer = data['tokenizer']
 
-# prepare
+if __name__ == '__main__':
+    dry = '--dry' in sys.argv[1:]
+    print('TRAINING MODEL')
 
-embed_dim = 128
-lstm_out = 196
+    # load the training data and extract its parts
+    print('    Loading training data ... ', end ='')
+    data = pickle.load(open(trainingDumpFile, 'rb'))
+    X_test = data['X_test']
+    X_train = data['X_train']
+    y_test = data['y_test']
+    y_train = data['y_train']
+    labelLegendInverted = data['label_legend_inverted']
+    labelLegend = data['label_legend']
+    maxSeqLength = data['max_seq_length']
+    maxNumWords = data['max_words']
+    tokenizer = data['tokenizer']
+    print('done')
 
-model = Sequential()
-model.add(Embedding(max_words, embed_dim, input_length=X_train.shape[1]))
-model.add(SpatialDropout1D(0.4))
-model.add(LSTM(lstm_out, dropout=0.3, recurrent_dropout=0.3))
-model.add(Dense(2, activation='softmax'))
-model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
-print(model.summary())
+    # Model preparation
+    print('    Initializing model ... ', end ='')
+    embedDim = 128
+    LstmOut = 196
+    #
+    model = Sequential()
+    model.add(Embedding(maxNumWords, embedDim, input_length=X_train.shape[1]))
+    model.add(SpatialDropout1D(0.4))
+    model.add(LSTM(LstmOut, dropout=0.3, recurrent_dropout=0.3))
+    model.add(Dense(2, activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print('done. Model summary:')
+    print(model.summary())
 
-# train
+    # Training
+    print('    Training (it will take some minutes) ... ', end ='')
+    batchSize = 32
+    epochs = 5
+    model.fit(X_train, y_train, validation_data=(X_test, y_test), batch_size=batchSize, verbose=1, epochs=epochs)
+    print('done')
 
-batch_size = 32
-epochs = 5
-model.fit(X_train, y_train, validation_data=(X_test, y_test), batch_size=batch_size, verbose=1, epochs=epochs)
+    # Save the result (this involves three separate files)
+    # 1. Save the model proper (the model has its own format and its I/O methods)
+    print('    Saving model ... ', end ='')
+    if not dry:
+        model.save(trainedModelFile)
+    else:
+        print(' **dry-run** ', end='')
+    print('done')
 
-# save model
+    # ... but for later self-contained use in the API then we need:
+    #     the model (hdf5 file), saved above
+    #     some metadata, that we will export now as JSON for interoperability:
+    #         labelLegendInverted
+    #         labelLegend
+    #         maxSeqLength
+    #         maxNumWords
+    #     and finally the tokenizer itself
 
-model.save('training/trained_model_v1/spam_model.hdf5')
+    # 2. save a JSON with the metadata needed to 'run' the model
+    print('    Saving metadata ... ', end ='')
+    metadataForExport = {
+        'label_legend_inverted': labelLegendInverted,
+        'label_legend': labelLegend,
+        'max_seq_length': maxSeqLength,
+        'max_words': maxNumWords,
+    }
+    if not dry:
+        json.dump(metadataForExport, open(trainedMetadataFile, 'w'))
+    else:
+        print(' **dry-run** ', end='')
+    print('done')
 
-# as a base test TAKE IT AWAY FROM HERE and move to post_Training!):
-def predict(text_str, pMaxSequence=max_seq_length, pTokenizer=tokenizer):
-  sequences = pTokenizer.texts_to_sequences([text_str])
-  x_input = pad_sequences(sequences, maxlen=pMaxSequence)
-  y_output = model.predict(x_input)
-  #top_y_index = np.argmax(y_output)
-  preds = y_output[0]#[top_y_index]
-  labeled_preds = {f"{label_legend_inverted[str(i)]}": x for i, x in enumerate(preds)}
-  return labeled_preds
-
-"""
-For later use in the API then we need
-    the model (hdf5 file)
-    something from the pickled, that we will export now as json for interoperability:
-        label_legend_inverted
-        label_legend
-        max_seq_length
-        max_words
-    and the tokenizer
-"""
-
-metadataForExport = {
-    'label_legend_inverted': label_legend_inverted,
-    'label_legend': label_legend,
-    'max_seq_length': max_seq_length,
-    'max_words': max_words,
-}
-json.dump(metadataForExport, open('training/trained_model_v1/spam_metadata.json', 'w'))
-
-tokenizerJson = tokenizer.to_json()
-with open('training/trained_model_v1/spam_tokenizer.json', 'w') as f:
-    f.write(tokenizerJson)
+    # 3. dump the tokenizer. This is in practice a JSON, but the tokenizer
+    #    offers methods to deal with that:
+    print('    Saving tokenizer ... ', end ='')
+    tokenizerJson = tokenizer.to_json()
+    if not dry:
+        with open(trainedTokenizerFile, 'w') as f:
+            f.write(tokenizerJson)
+    else:
+        print(' **dry-run** ', end='')
+    print('done')
+    #
+    print('FINISHED')

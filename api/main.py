@@ -65,7 +65,7 @@ def onStartup():
     logging.info('     Loading classifier model')
     API_BASE_DIR = pathlib.Path(__file__).resolve().parent
     MODEL_DIR = API_BASE_DIR.parent / settings.model_directory
-    SPAM_HD_PATH = MODEL_DIR / 'spam_model.hdf5'
+    SPAM_HD_PATH = MODEL_DIR / 'spam_model.h5'
     SPAM_TOKENIZER_PATH = MODEL_DIR / 'spam_tokenizer.json'
     SPAM_METADATA_PATH = MODEL_DIR / 'spam_metadata.json'
     # actual loading of the classifier model

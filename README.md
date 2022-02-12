@@ -12,7 +12,7 @@ in it + preinstall the required dependencies: **ctrl-click on
 it** to make sure you "Open in new tab" (Note: you may have to authenticate
 through Github in the process):
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hemidactylus/nbws1)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hemidactylus/NLP-classifier-API)
 
 In a few minutes, a full IDE will be ready in your browser, with a file
 explorer on the left, a file editor on the top, and a console (`bash`) below it.
