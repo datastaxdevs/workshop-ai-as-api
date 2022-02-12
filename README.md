@@ -23,12 +23,31 @@ explorer on the left, a file editor on the top, and a console (`bash`) below it.
 
 ## Part 1: train the model
 
+(sketch of the steps so far)
 
-
+- check the csv, line 352
+- "prepareDataset.py", or "prepareDataset.py -v", check output and code, also diagrams
+  (don't worry about `Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory`, it just means no CUDA, no GPU, hence we'll be a tad slower. You may want to do gpu)
+  inspect file created
+- "trainModel.py", also inspect files created
+- "loadTestModel.py"
 
 ## Part 2: expose as an API
 
-
+- cp .env.sample .env and fill it (bundle: currently to a subdir (mmh), id, secret)
+- look at minimain code
+- `uvicorn api.minimain:miniapp`, a couple of CURLs, quckly
+- STOP minimain and look at the complete main api:
+    model class
+    caching, DB access and object mapper
+    typing
+    settings
+    calls log, caller "id" and streaming
+- run the main api
+    a couple of CURLs, in sequence to illustrate caching
+    keep an eye on CQL Console
+    swagger UI to play a bit (e.g. with the streaming + curl!), ```echo `gp url 8000`/docs```
+- homeworks
 
 
 ## Notes:
@@ -50,7 +69,9 @@ curl -XPOST localhost:8000/prediction -d '{"text": "Bla", "skip_cache": true}' -
 
 
 curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "Mmmm, it seems a really top-notch place! The photos made me hungry..."]}' -H 'Content-Type: application/json' | python -mjson.tool
-curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "Mmmm, it seems a really top-notch place! The photos made me hungry..."], "echo_input": false}' -H 'Content-Type: application/json' | python -mjson.tool
+curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "A new sentence!"], "echo_input": false}' -H 'Content-Type: application/json' | python -mjson.tool
+
+
 ```
 
 ## swagger
