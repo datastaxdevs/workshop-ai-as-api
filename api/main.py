@@ -8,7 +8,7 @@ import datetime
 import logging
 import json
 from typing import List
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import StreamingResponse
 from cassandra.cqlengine.management import sync_table
 from cassandra.util import datetime_from_uuid1
@@ -114,6 +114,11 @@ def single_text_prediction(query: SingleTextQuery, request: Request):
         return PredictionResult(**cached)
 
 
+@app.get('/prediction', response_model=PredictionResult, tags=['classification'])
+def single_text_prediction_get(request: Request, query: SingleTextQuery = Depends()):
+    return single_text_prediction(query, request)
+
+
 @app.post('/predictions', response_model=List[PredictionResult], tags=['classification'])
 def multiple_text_predictions(query: MultipleTextQuery, request: Request):
     """ Ignoring reading from cache, this would simply be:
@@ -126,6 +131,7 @@ def multiple_text_predictions(query: MultipleTextQuery, request: Request):
             return results
         In the following we get a bit sophisticated and retrieve
         what we can from cache (doing the rest and re-merging at the end)
+        (the assumption here is that predicting is much more expensive)
     """
     # what is in the cache?
     cachedResults = [

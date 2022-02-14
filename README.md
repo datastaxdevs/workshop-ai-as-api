@@ -71,6 +71,8 @@ curl -XPOST localhost:8000/prediction -d '{"text": "Bla", "skip_cache": true}' -
 curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "Mmmm, it seems a really top-notch place! The photos made me hungry..."]}' -H 'Content-Type: application/json' | python -mjson.tool
 curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "A new sentence!"], "echo_input": false}' -H 'Content-Type: application/json' | python -mjson.tool
 
+# also as GET out of convenience
+curl "localhost:8000/prediction?text=rrr&skip_cache=true"
 
 ```
 
