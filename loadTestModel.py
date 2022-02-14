@@ -4,6 +4,8 @@
         found in the "trained model" directory.
 """
 
+import sys
+
 import json
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import tokenizer_from_json
@@ -32,11 +34,17 @@ if __name__ == '__main__':
         labeledPredictions = {pLabelLegendInverted[str(i)]: x for i, x in enumerate(preds)}
         return labeledPredictions
 
-    # texts for the test
-    sampleTexts = [
-        'This is a nice touch, adding a sense of belonging and coziness. Thank you so much.',
-        'Click here to WIN A FREE IPHONE and this and that.',
-    ]
+    if sys.argv[1:] == []:
+        # texts for the test
+        sampleTexts = [
+            'This is a nice touch, adding a sense of belonging and coziness. Thank you so much.',
+            'Click here to WIN A FREE IPHONE and this and that.',
+        ]
+    else:
+        sampleTexts = [
+            ' '.join(sys.argv[1:])
+        ]
+
     # simple test:
     print('\n\tMODEL TEST:')
     print('=' * 20)
