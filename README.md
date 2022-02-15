@@ -427,7 +427,7 @@ Most of the settings in this file are already filled for you (they will be
 picked up by the API as you start it).
 
 _Important:_ Make sure you paste your App ID and App Secret obtained earlier with the
-Astra DB Token in the `ASTRA_DB_CLIENT_SECRET` and `ASTRA_DB_CLIENT_ID` variables
+Astra DB Token in the `ASTRA_DB_CLIENT_ID` and `ASTRA_DB_CLIENT_SECRET` variables
 (keep the quotes and don't leave spaces around the equal sign).
 
 As for the `ASTRA_DB_KEYSPACE` and `ASTRA_DB_BUNDLE_PATH` settings, you probably
@@ -518,7 +518,13 @@ FastAPI will try to match the function arguments with the request parameters.
 
 To make this matching more effective, and gain input validation "for free" with
 that, we use "models" offered by `pydantic` and use those as the types
-for the endpoint functions. Try to invoke the API with `curl -s -XPOST   localhost:8000/prediction   -d '{}'   -H 'Content-Type: application/json' | python -mjson.tool` and see what happens.
+for the endpoint functions. Try to invoke the API as follows and see what happens
+(note the empty body):
+```
+curl -v -s -XPOST \
+  localhost:8000/prediction -d '{}' \
+  -H 'Content-Type: application/json' | python -mjson.tool
+```
 
 The core of the API, the classifier model, is conveniently wrapped into a separate
 class, `AIModel`, that takes care of loading from files and predicting; it also
@@ -529,47 +535,180 @@ is used to "register" some operations, effectively scheduling them for execution
 as soon as the rest of the API is loaded. Then, the model will live as a global
 variable accessible from the various endpoint functions.
 
-### Start the full API
+### Inspect the full API
 
-- STOP minimain and look at the complete main api:
-    model class
-    caching, DB access and object mapper
-    typing
-    settings
-    calls log, caller "id" and streaming
+You can now stop the minimal API (Ctrl-C in its console) and get ready to start
+the full API. This is our "production-ready" result and, as such, has many more
+nice features that we will now list (just giving pointers for those interested
+in knowing more):
+
+#### Database and Caching
+
+In general, running classifier can be expensive in terms of CPU and time. Since,
+once the model is trained, predictions are deterministic, it would make sense
+to introduce a caching mechanism, whereby texts that were already processed
+and cached are not computed again.
+
+We happen to have a database, our Astra DB instance, and we will use it
+to store all predictions for later querying and retrieval. To do so, we need:
+a table, containing processed text data; a connection to the database,
+that we will keep alive throughout the life of the API; and methods to write,
+and read, entries in that table.
+
+Technically, we will use the Cassandra Python drivers, and in particular
+we will use the Object Mapper facility they offer. Look into `api/database/*.py`:
+there is a module that sets up the connection, using the secrets found in the `.env`,
+and another where the models are defined - in particular the `SpamCacheItem` model.
+
+The database initialization will go together with the spam-model loading into
+the API "startup" hook.
+Note that there is no need to explicitly create the table: creation,
+when needed, is handled
+automatically by the `sync_table` calls in the `onStartup()` method.
+
+This table is a Cassandra table: we model it according to the query it has
+to support. In this case that means we'll have model version and input text
+as primary key (also partition key), and the prediction output as additional data columns.
+(Note: using the object mapper, the structure of the table is implied
+in the attributes we give to the fields in the corresponding model).
+
+At this point, the endpoint functions can use the `cachePrediction` and
+`readCachedPrediction` functions to look for entries in the cache and store them.
+
+Note that caching introduces a nontrivial possibility in the multi-input endpoint:
+namely, only some of the input texts may be cached: as a demonstration, and assuming
+the cost of computation is way higher than the cost of writing and maintaining the code
+(which in many cases is true, especially with ML!), the code goes to great lengths
+to ensure this is handled sparingly and transparently to the caller.
+
+#### Documentation and typed response
+
+We love well-documented APIs. And FastAPI makes it pretty easy to do so:
+
+- when instantiating the main `FastAPI` object, all sorts of properties (version number, grouping of endpoints, API title and so on) can be passed to it;
+- docstrings in the endpoint functions, and even the function names themselves, are known to FastAPI;
+- additional annotations can be passed to the endpoint decorators, such as the expected structure of the response JSON (for this reason, we took the extra care of defining `pydantic` models for the responses as well, for instance `PredictionResult`).
+
+This is all used by FastAPI to automatically expose a Swagger UI that makes it easy
+to experiment with the running API and test it
+(we will later see how this makes our life, as developers, easier).
+Also a machine-readable description of the API
+conforming to the OpenAPI specifications is produced and made available.
+
+#### Call logging and StreamingResponse
+
+Caching is not the only use we make of a database: we also log all
+classification requests to a table, keeping track of the time, the text
+that was requested and the identity of the caller.
+
+> This may be useful, for instance, to implement rate limiting; in this API
+> we simply expose the datum back to the caller, who is able to issue a request
+> such as `curl -s http://localhost:8000/recent_log | python -mjson.tool` and
+> examine their own recent calls.
+
+This may get large and we use STREAMING RESPONSE ... TODO
+
+On the DB side, the underlying table ... TODO
+
+#### Support for a GET endpoint
+
+TODO
+
+```
+curl -s "localhost:8000/prediction?text=This+is+a+nice+day&skip_cache=true&echo_input=1" | python -mjson.tool
+```
+
+### Launch the full API
+
+Hit Ctrl-C in the API console (if you didn't already) and launch the following
+command this time:
+
+```
+uvicorn api.main:app
+```
+
+The full API is starting (and again, after a somewhat lengthy output you will
+see something like `Uvicorn running on http://127.0.0.1:8000` being printed).
+
+Let us quickly launch a couple of requests with `curl` on the `bash` console
+(the same requests already sent to the minimal API earlier) and check the
+output:
+
+```
+# get basic info
+curl -s http://localhost:8000 | python -mjson.tool
+```
+
+This output has been enriched with the "ID of the caller" (actually the IP
+the call comes from). To access this piece of information from within the route,
+we make use of the very flexible dependency system offered by FastAPI, simply
+declaring the endpoint function as having a parameter of type `Request`:
+we will be then able to read its `client` member to access the caller IP address.
+
+> Note: when running behind a reverse-proxy one would have to configure
+> the latter so that it makes use of the `X-Forwarded-For` header, and it is that
+> header instead that has to be read within the Python code.
+> See [this](https://stackoverflow.com/questions/60098005/fastapi-starlette-get-client-real-ip) for more information.
+
+Now for an actual request to process some text:
+
+```
+# single-text endpoint
+curl -s -XPOST \
+  localhost:8000/prediction \
+  -d '{"text": "Click TO WIN a FREE CAR"}' \
+  -H 'Content-Type: application/json' | python -mjson.tool
+```
+
+Also this output is somewhat richer: there is an `"input"` field (not filled
+by default) and, most important, a `"from_cache"` field - presumably `false`.
+But, if you re-launch the very same `curl` command (try it!), the response
+will have `"from_cache"` set to `true`: this is the caching mechanism at work.
+
+We could play a bit more with the API, but to do so, let us move to a friendlier
+interface, offered for free by FastAPI: Swagger.
+
 
 
 ## Use the API
 
-API Docs (`http://127.0.0.1:8000/docs`) and API testing
+TODO
+
+API Docs (`http://127.0.0.1:8000/docs`) and API testing.
+
+But actually for us ```echo `gp url 8000`/docs```, in new tab (we opened the port to outside btw)
+
+- have a look around the swagger
+- a couple of CURLs, in a sequence to illustrate caching
+- look at call logs requests at this point
+- keep an eye on cql console
 
 Also check on Astra DB
 
 - run the main api
-    a couple of CURLs, in sequence to illustrate caching
     keep an eye on CQL Console
-    swagger UI to play a bit (e.g. with the streaming + curl!), ```echo `gp url 8000`/docs```
+    swagger UI to play a bit (e.g. with the streaming + curl!), 
 
 
-## Notes:
+## Homework detailed instructions
 
-some more notes on X-Forwarded-For ? https://stackoverflow.com/questions/60098005/fastapi-starlette-get-client-real-ip
+TODO
 
 
-## Curls for the API
+## Appendix: deploy behind a reverse proxy (nginx)
+
+TODO
+
+
+## Curls for the API (TEMP)
+
+(this should disappear as it goes to above sections)
 
 ```
-curl -s localhost:8000/ | python -mjson.tool
-
-
 curl -XPOST localhost:8000/prediction -d '{"text": "Bla"}' -H 'Content-Type: application/json' | python -mjson.tool
 curl -XPOST localhost:8000/prediction -d '{"text": "Bla", "skip_cache": true}' -H 'Content-Type: application/json' | python -mjson.tool
 
 
 curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "Mmmm, it seems a really top-notch place! The photos made me hungry..."]}' -H 'Content-Type: application/json' | python -mjson.tool
 curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "A new sentence!"], "echo_input": false}' -H 'Content-Type: application/json' | python -mjson.tool
-
-# also as GET out of convenience
-curl "localhost:8000/prediction?text=rrr&skip_cache=true"
-
 ```
