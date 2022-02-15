@@ -245,11 +245,11 @@ of numbers, each representing a token (one word) forming the message text.
 
 More precisely:
 
-- first we will initialize a "tokenizer", asking it to build a dictionary (i.e. a token/number mapping) best suited for the texts at hand;
-- then, we will use the tokenizer to reduce all messages into (variable-length) sequences of numbers;
-- these sequences will be "padded", i.e. we will make sure they end up all having the same length: in this way, the whole dataset will be represented by a rectangular matrix of integer numbers, possibly with leading zeroes;
-- the "spam/ham" column of the input dataset is recast as "categorical": that is, it is made into two columns, one for "spamminess" and one for "hamminess", both admitting the values zero or one: this turns out to be a formulation much friendlier to machine-learning tasks in general;
-- finally we will split the labeled dataset into a "training" and a "testing" disjoint parts. This is a very important concept: the effectiveness of a model should always be validated on data points **not used during training**.
+1. first we will initialize a "tokenizer", asking it to build a dictionary (i.e. a token/number mapping) best suited for the texts at hand;
+2. then, we will use the tokenizer to reduce all messages into (variable-length) sequences of numbers;
+3. these sequences will be "padded", i.e. we will make sure they end up all having the same length: in this way, the whole dataset will be represented by a rectangular matrix of integer numbers, possibly with leading zeroes;
+4. the "spam/ham" column of the input dataset is recast as "one-hot": that is, it is made into two columns, one for "spamminess" and one for "hamminess", both admitting the values zero or one (but with a single "one" per row): this turns out to be a formulation much friendlier to machine-learning tasks in general;
+5. finally we will split the labeled dataset into a "training" and a "testing" disjoint parts. This is a very important concept: the effectiveness of a model should always be validated on data points **not used during training**.
 
 All these steps can be largely automated by using data-science Python packages
 such as `pandas`, `numpy`, `tensorflow/keras`.
@@ -300,6 +300,21 @@ The training script works as follows:
 2. a specific architecture of a neural network is created, still a "blank slate" in terms of what it "knows". Its structure is that of a LSTM ([long-short-term-memory](https://en.wikipedia.org/wiki/Long_short-term_memory)), a [specific kind](https://www.tensorflow.org/api_docs/python/tf/keras/layers/LSTM) of recurrent neural network with some clever modifications aimed at enhancing its ability to "remember" things between non-adjacent locations in a sequence, such as two displaced positions in a string of text;
 3. the network (our classifier) is trained: that means it will progressively adapt its internal (many thousands of) parameters in order to best reproduce the input training set. Each individual neuron in the network is a relatively simple component - the "intelligence" coming from their sheer quantity and the particular choice of parameters determining which neurons affect which other and by how much;
 4. Once the training process has finished, the script carefully saves everything (model, tokenizer and associated metadata) in a format that can be later loaded by the API in a stand-alone way.
+
+<details><summary>Show me Gitpod during training</summary>
+
+Training progresses in "epochs", each epoch representing a complete sweep
+through the input dataset. Several metrics are printed during training:
+
+- `accuracy`: this is the fraction of predictions that match the labeled input (higher is better);
+- `loss`: the value of the "loss function", which measures how close are the predictions to the input data (lower is better). The precise definition of the loss function is derived from information theory: the idea is to quantify "departure from ideal predictions" in a fair way in all directions. _In [our case](https://keras.io/api/losses/probabilistic_losses/#categoricalcrossentropy-class), we choose the ["categorical cross-entropy"](https://en.wikipedia.org/wiki/Cross_entropy) loss function, particularly suitable for models that choose between two or more output labels_.
+- `val_accuracy`, `val_loss`: the same quantities as above, but calculated at end of epoch on the validation dataset (i.e. the `X_test` and `y_test` portion of the input labeled data).
+
+<img src="images/during_training.png?raw=true" />
+
+</details>
+
+accuracy val_accuracy loss val_loss
 
 Perhaps by now the training process is completed and everything has been
 saved in the `training/trained_model_v1` directory (_Note_: we keep a version
