@@ -288,7 +288,7 @@ launch the script
 python trainModel.py
 ```
 
-and wait for it to finish (it will take probably fifteen minutes or so on Gitpod).
+and wait for it to finish (it will take probably twelve minutes or so on Gitpod).
 
 The training script works as follows:
 
@@ -327,6 +327,11 @@ or even, if you feel creative, something like
 ```
 python loadTestModel.py This is my example sentence and let us see if this is ham
 ```
+
+Note that the output is given in terms of "probabilities", or "confidence":
+we can interpret a result like `{'ham': 0.92, 'spam': 0.08}` as
+_the input is ham with 92% confidence_. Indeed, generally speaking,
+ML-based classifiers are very sophisticated machines for statistical inference.
 
 If you look at the (very simple) code of this function, you will see how the
 model, once loaded, is used to make predictions (it all boils down to the model's
