@@ -1,5 +1,5 @@
 <!--- STARTEXCLUDE --->
-# NLP text classification as an API
+# AI as an API for beginners
 
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/datastaxdevs/workshop-ai-as-api)
 [![License Apache2](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
@@ -307,7 +307,7 @@ Training progresses in "epochs", each epoch representing a complete sweep
 through the input dataset. Several metrics are printed during training:
 
 - `accuracy`: this is the fraction of predictions that match the labeled input (higher is better);
-- `loss`: the value of the "loss function", which measures how close are the predictions to the input data (lower is better). The precise definition of the loss function is derived from information theory: the idea is to quantify "departure from ideal predictions" in a fair way in all directions. _In [our case](https://keras.io/api/losses/probabilistic_losses/#categoricalcrossentropy-class), we choose the ["categorical cross-entropy"](https://en.wikipedia.org/wiki/Cross_entropy) loss function, particularly suitable for models that choose between two or more output labels_.
+- `loss`: the value of the "loss function", which measures how close are the predictions to the input data (lower is better). The precise definition of the loss function is derived from information theory: the idea is to quantify "departure from ideal predictions" fairly in all directions and in a way that favors gradual improvement of the parameters. _In [our case](https://keras.io/api/losses/probabilistic_losses/#categoricalcrossentropy-class), we choose the ["categorical cross-entropy"](https://en.wikipedia.org/wiki/Cross_entropy) loss function, particularly suitable for models that choose between two or more output labels_;
 - `val_accuracy`, `val_loss`: the same quantities as above, but calculated at end of epoch on the validation dataset (i.e. the `X_test` and `y_test` portion of the input labeled data).
 
 <img src="images/during_training.png?raw=true" />
@@ -438,11 +438,96 @@ uploaded to Gitpod, respectively.)
 
 ### Baby steps: a minimal API
 
-`uvicorn api.minimain:app --reload`
+Now that the trained model is there, the `.env` file is ready and the
+secure bundle is in place, you can start a minimal form of the API with:
 
-- look at minimain code
+```
+uvicorn api.minimain:miniapp --reload
+```
 
-- a couple of CURLs, quckly
+> In this command, you are telling `uvicorn` (an ASGI server capable of running
+> asynchronous Python APIs) to launch the `app` API found in the `minimain` module;
+> you also ask it to keep a watch on all involved files and auto-reload on any
+> file change.
+
+After some (rather verbose) output from Tensorflow, you should see the
+`INFO: Application startup complete.` notice: the API is ready to accept
+requests (on localhost and port 8000, as per defaults).
+We will first fire some requests and then have a quick look at how
+the code is structured.
+
+#### Query the minimal API
+
+We will use the command-line tool `curl` to issue simple HTTP requests at our
+running API (but, of course, any tool capable of doing GETs and POSTs would do).
+
+While the API is running, switch to the other `bash` console in Gitpod (using
+the console switcher at the bottom right of your IDE) and try the following command:
+
+```
+curl -s http://localhost:8000 | python -mjson.tool
+```
+
+This issues a GET request to the `"/"` API endpoint. The result is a small
+summary, in JSON form, of some of the API parameters inherited through the
+`.env` file.
+
+The logic to retrieve these settings and make them available to the API
+is in the `config.py` module and relies on the `pydantic` package,
+that excels at data validation while allowing for surprisingly short and clean
+code. `pydantic` pairs very well with FastAPI ([documentation](#)).
+
+> If you are feeling adventurous, try stopping the API (Ctrl-C in the API
+> shell) and re-starting as
+> `API_NAME="Fire Dragon!" uvicorn api.minimain:miniapp --reload`.
+> Try again the above `curl` command to see the redefined environment
+> variable `API_NAME` taking precedence over the dot-env file.
+
+This minimal API already accomplishes the basic task for today: namely,
+it makes the spam classifier available as an API. Let's try with some POST requests:
+
+```
+# single-text endpoint
+curl -s -XPOST \
+  localhost:8000/prediction \
+  -d '{"text": "Click TO WIN a FREE CAR"}' \
+  -H 'Content-Type: application/json' | python -mjson.tool
+
+# multiple-texts endpoint
+curl -s -XPOST \
+  localhost:8000/predictions \
+  -d '{"texts": ["Click TO WIN a FREE CAR", "I like this endpoint"]}' \
+  -H 'Content-Type: application/json' | python -mjson.tool
+```
+
+That's it: the API correctly receives requests, uses the model to get
+predictions (i.e. spam/ham scores for each message), and returns
+them back to the caller.
+
+#### Inspect the minimal API code
+
+What is running now is a basic API architecture, which makes use of just
+the fundamental features of FastAPI: you will shortly launch a more
+sophisticated API. But first let us make some observation on the
+code structure:
+
+The main object is the `FastAPI` instance called `miniapp`: this exposes a
+_decorator_ that can be used to attach a Python function to an API endpoint
+(see e.g. the `@miniapp.get('/')` preceding the function definition).
+FastAPI will try to match the function arguments with the request parameters.
+
+To make this matching more effective, and gain input validation "for free" with
+that, we use "models" offered by `pydantic` and use those as the types
+for the endpoint functions. Try to invoke the API with `curl -s -XPOST   localhost:8000/prediction   -d '{}'   -H 'Content-Type: application/json' | python -mjson.tool` and see what happens.
+
+The core of the API, the classifier model, is conveniently wrapped into a separate
+class, `AIModel`, that takes care of loading from files and predicting; it also
+performs the necessary conversions to offer a friendlier interface to the caller.
+The model is instantiated within a special `@miniapp.on_event("startup")`
+utility decorator offered by FastAPI which
+is used to "register" some operations, effectively scheduling them for execution
+as soon as the rest of the API is loaded. Then, the model will live as a global
+variable accessible from the various endpoint functions.
 
 ### Start the full API
 
