@@ -1,7 +1,7 @@
 <!--- STARTEXCLUDE --->
 # NLP text classification as an API
 
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hemidactylus/NLP-classifier-API)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/hemidactylus/NLP-classifier-API)
 [![License Apache2](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Discord](https://img.shields.io/discord/685554030159593522)](https://discord.com/widget?id=685554030159593522&theme=dark)
 
@@ -37,17 +37,16 @@ interactive workshop featuring
 
 > You don't have to, **you can do everything in the cloud from the comfort of your browser**! But there is nothing preventing you from running the workshop on your own machine.
 > If you do so, you will need
-> * `git` installed on your local system
-update-node-js/)
-> * [Python v3.6+ installed on your local system](https://www.python.org/downloads/)
+> * `git` installed on your local system;
+> * [Python v3.6+ installed on your local system](https://www.python.org/downloads/).
 >
 > In this readme, we try to provide instructions for local development as well - but keep in mind that
-> the main focus is development on Gitpod, hence **We can't guarantee live support** about local development
+> the main focus is development on Gitpod, hence **we can't guarantee live support** about local development
 > in order to keep on track with the schedule. However, we will do our best to give you the info you need to succeed.
 
 - *What other prerequisites are there?*
-> * You will need a GitHub account
-> * You will also need an Astra account: don't worry, we'll work through that in the following
+> * You will need a GitHub account;
+> * You will also need an Astra account: don't worry, we'll work through that in the following.
 
 - *Do I need to pay for anything for this workshop?*
 > * **No.** All tools and services we provide here are FREE.
@@ -56,11 +55,11 @@ update-node-js/)
 
 > Attending the session is not enough. You need to complete the homeworks detailed below and you will get a nice participation certificate a.k.a. badge.
 
-<details><summary>Show me the credits for this workshop</summary>
+<details><summary>Show me the **credits** for this workshop</summary>
 
 #### Credits
 
-The core of this workshop is an adaptation from the excellent content ["AI as an API"](https://www.youtube.com/watch?v=56qQNcHJxyQ),
+The core of this workshop is an adaptation from the excellent content ["AI as an API,"](https://www.youtube.com/watch?v=56qQNcHJxyQ)
 created by [CodingEntrepreneurs](https://www.youtube.com/channel/UCWEHue8kksIaktO8KTTN_zg).
 You are very much encouraged to watch it, as it touches on more topics
 and includes steps that unavoidably had to be taken out when converting to
@@ -92,11 +91,11 @@ we have you covered. In this repository, you'll find everything you need for thi
 
 ## Homework
 
-<img src="images/streaming-workshop.png?raw=true" width="200" align="right" />
+<img src="images/nlp-as-api-badge.png?raw=true" width="200" align="right" />
 
-Don't forget to complete your assignment and get your verified skill badge! Finish and submit your homework!
+Don't forget to complete your assignment and get your **verified skill badge**:
 
-1. Complete the practice steps as described below until you can query your API running in Gitpod.
+1. do all practice steps described below until you can query your API running in Gitpod.
 2. Now roll up your sleeves and modify the code as follows: TBD
 3. Take a SCREENSHOT of requests/responses with the modified API. _Note: you will have to restart the API to see all changes!_
 4. Submit your homework [here](#).
@@ -121,14 +120,14 @@ That's it, you are done! Expect an email in a few days!
 
 ## Create and setup Astra DB
 
-_**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all - just push the button and get your cluster. No credit card required, $25.00 USD credit every month, roughly 20M read/write operations and 80GB storage monthly - sufficient to run small production workloads._
-
 You will now create a database with a keyspace in it (a _keyspace_ can contain _tables_).
-Our API needs a couple of tables: they will be created programmatically on startup
+Our API needs a couple of tables for persistent storage: they will be created programmatically on startup
 if they don't exist, so there's no need to worry too much about them.
 
 Besides creating the database, you need to retrieve a couple of codes and assets
 for the API to be able to connect to it in a secure and authenticated way.
+
+_**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all - just push the button and get your cluster. No credit card required, $25.00 USD credit every month, roughly 20M read/write operations and 80GB storage monthly - sufficient to run small production workloads._
 
 Start by Ctrl-clicking on this button (to open in a new tab)
 and then follow the instructions below:
@@ -140,7 +139,7 @@ and then follow the instructions below:
 - generate and retrieve a DB Token [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-Astra-Token#c---procedure). **Important**: use the role "DB Administrator" for the token. You will later need the "Client ID" and "Client Secret" for this token.
 
 Moreover, keep the Astra DB dashboard open: it will be useful later.
-In particular you may find it convenient to keep the CQL Console ready
+In particular you may find it convenient to have the CQL Console within reach
 (click on your database on the left sidebar, then locate the "CQL Console" tab
 in the main panel).
 
@@ -151,12 +150,12 @@ in the main panel).
 Gitpod is an IDE in the cloud (modeled after VSCode). It comes with a full
 "virtual machine" (actually a Kubernetes-managed container), which we will
 use as if it were our own computer (e.g. downloading files, executing programs
-and scripts, training the model and indeed starting the API from it).
+and scripts, training the model and eventually starting the API from it).
 
 The button below will:
 
 - spawn your own Gitpod container;
-- clone this repository in it and open in in the IDE;
+- clone this repository in it and open it in the IDE;
 - preinstall the required dependencies.
 
 **ctrl-click on the Gitpod button** to make sure you "Open in new tab"
@@ -166,7 +165,12 @@ through Github in the process):
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hemidactylus/NLP-classifier-API)
 
 In a few minutes, a full IDE will be ready in your browser, with a file
-explorer on the left, a file editor on the top, and a console (`bash`) below it.
+explorer on the left, a file editor on the top
+(with this very README open for convenience), and a console (`bash`) below it.
+
+> _Note_: you will probably see "errors" related to mismatching versions
+> between the `tensorflow` package and others (notably `numpy`). You should
+> be able to ignore them and just go ahead.
 
 > There are many more other features, probably familiar to those who have
 > experience with VSCode. Feel free to play around a bit!
@@ -190,7 +194,7 @@ explorer on the left, a file editor on the top, and a console (`bash`) below it.
 ## Train the model
 
 The goal of this phase is to have our text classifier model ready
-to be used: that means, not only we will train it on a labeled dataset,
+to be used: that means, not only will we train it on a labeled dataset,
 but also we will take care of exporting it in a format suitable
 for later loading by the API.
 
@@ -202,7 +206,7 @@ it with the "File Explorer" on your left, but if you like using the keyboard
 you may simply issue the command `gp open training/dataset/spam-dataset.csv`
 from the `bash` Console at the bottom.)
 
-This is a CSV file with three columns:
+This is a CSV file with three columns (separated by commas):
 
 - whether the line is spam or "ham" (i.e. the opposite of spam),
 - a short piece of text (a "message"),
@@ -210,15 +214,21 @@ This is a CSV file with three columns:
 
 The third column betrays the mixed origin of the data: in order to
 create a labeled dataset of around 7.5K messages marked as spam/ham,
-two different (publicly available) sets have been merged.
+two different (publicly available) sets have been merged
+(namely [this one](https://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection)
+and [this one](https://archive.ics.uci.edu/ml/datasets/YouTube+Spam+Collection)).
 
-Luckily for you, the task of cleaning, validating and normalizing the
-heterogeneous (and usually imperfect) data has been already done for you
-- something that is seldom true in a real-world task.
+Luckily for you, the (not always fun) task of cleaning, validating and normalizing the
+heterogeneous (and usually imperfect) data has been already done for you -- something
+that is seldom true, alas, in a real-world task.
 
 Look at line 352 of this file for an example we will inspect time and again:
 is that message spam or ham? (_Tip_: hit Ctrl-G in the Gitpod editor to
 jump to a specific line number.)
+
+<details><summary>Show me that line in Gitpod's editor</summary>
+    <img src="images/gitpod_gotoline.png?raw=true" />
+</details>
 
 #### Prepare the dataset for training
 
@@ -234,8 +244,9 @@ More precisely:
 
 - first we will initialize a "tokenizer", asking it to build a dictionary (i.e. a token/number mapping) best suited for the texts at hand;
 - then, we will use the tokenizer to reduce all messages into (variable-length) sequences of numbers;
-- these sequences will be "padded", i.e. we will make sure they end up all having the same length: in this way, the whole dataset will be represented by a rectangular matrix of integer numbers;
-- finally we will split the labeled dataset into a "training" and a "testing" disjoint parts. This is a very important concept: the effectiveness of model should always be validated on data points never saw by the model during training.
+- these sequences will be "padded", i.e. we will make sure they end up all having the same length: in this way, the whole dataset will be represented by a rectangular matrix of integer numbers, possibly with leading zeroes;
+- the "spam/ham" column of the input dataset is recast as "categorical": that is, it is made into two columns, one for "spamminess" and one for "hamminess", both admitting the values zero or one: this turns out to be a formulation much friendlier to machine-learning tasks in general;
+- finally we will split the labeled dataset into a "training" and a "testing" disjoint parts. This is a very important concept: the effectiveness of a model should always be validated on data points **not used during training**.
 
 All these steps can be largely automated by using data-science Python packages
 such as `pandas`, `numpy`, `tensorflow/keras`.
@@ -282,8 +293,8 @@ and wait for it to finish (it will take probably fifteen minutes or so on Gitpod
 The training script works as follows:
 
 1. all variables created and stored in the previous steps are loaded back to memory;
-2. a specific architecture of a neural network is created, still a "blank slate" in terms of what it "knows". Its structure is that of a LSTM (long-short-term-memory), a specific kind of recurrent neural network with some clever modifications aimed at enhancing its ability to "remember" things between non-adjacent locations in a sequence, such as two displaced positions in a string of text;
-3. the network (our classifier) is trained: that means it will progressively adapt its internal (many thousands of) parameters in order to reproduce the input training set. Each individual neuron in the network is a relatively simple component - the "intelligence" coming from their sheer quantity and the particular choice of parameters determining which neurons affect which other and by how much;
+2. a specific architecture of a neural network is created, still a "blank slate" in terms of what it "knows". Its structure is that of a LSTM ([long-short-term-memory](https://en.wikipedia.org/wiki/Long_short-term_memory)), a [specific kind](https://www.tensorflow.org/api_docs/python/tf/keras/layers/LSTM) of recurrent neural network with some clever modifications aimed at enhancing its ability to "remember" things between non-adjacent locations in a sequence, such as two displaced positions in a string of text;
+3. the network (our classifier) is trained: that means it will progressively adapt its internal (many thousands of) parameters in order to best reproduce the input training set. Each individual neuron in the network is a relatively simple component - the "intelligence" coming from their sheer quantity and the particular choice of parameters determining which neurons affect which other and by how much;
 4. Once the training process has finished, the script carefully saves everything (model, tokenizer and associated metadata) in a format that can be later loaded by the API in a stand-alone way.
 
 Perhaps by now the training process is completed and everything has been
@@ -294,8 +305,8 @@ hypothetically to expose several of them at once in a single API).
 Take a look in the output directory: there should be
 
 - a (small) JSON file with some metadata describing some features of the model;
-- a (larger) JSON file containing the full definition of the tokenizer. This has been created, and will be loaded, using helper functions provided with the tokenizer itself out of convenience;
-- a (rather large) binary file containing "the model". That means, among other things, the shape and topology of the neural network and all "weights", i.e. the parameters dictating which neurons will affect which others. Saving and loading this file, which is in the HDF5 format, is best left to routines kindly offered by Keras.
+- a (larger) JSON file containing the full definition of the tokenizer. This has been created, and will be loaded, using helper functions provided with the tokenizer itself for our convenience;
+- a (rather large) binary file containing "the model". That means, among other things, the shape and topology of the neural network and all "weights", i.e. the parameters dictating which neurons will affect which others, and by how much. Saving and loading this file, which is in the HDF5 format, is best left to routines kindly offered by Keras.
 
 #### Test the trained model
 
@@ -320,10 +331,10 @@ python loadTestModel.py This is my example sentence and let us see if this is ha
 If you look at the (very simple) code of this function, you will see how the
 model, once loaded, is used to make predictions (it all boils down to the model's
 `predict` method, but first the input text must be recast as sequence of numbers,
-and likewise the results must be made readable by humans).
+and likewise the results must be made readable by humans again).
 
 _Note_: the model lends itself very well to processing several input texts
-in parallel (which generally is a big advantage in terms of performance and
+in parallel (which generally is a big advantage in terms of performance; it is
 something we will exploit in the API as well). **Can you see where this is apparent
 in this test code?**
 

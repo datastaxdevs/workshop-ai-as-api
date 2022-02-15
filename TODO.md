@@ -1,5 +1,9 @@
 # TODO
 
+README: screenshots of the training phase
+
+README: we/you, set this uniform (you)
+
 refactor non-route functions out of main.py
 
 comments in routes (also for doc)

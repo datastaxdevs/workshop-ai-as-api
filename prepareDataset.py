@@ -84,8 +84,8 @@ if __name__ == '__main__':
     y = to_categorical(labelsAsIntArray)
     print('done')
     if verbose:
-        print('        y.shape                          = %s' % str(y.shape))
         print('        labelsAsIntArray.shape           = %s' % str(labelsAsIntArray.shape))
+        print('        y.shape                          = %s' % str(y.shape))
         print('        y[:5]                            = %s' % _reindent(str(y[:5]),43))
         print('        labels[:5]                       = %s' % str(labels[:5]))
         print('        labelLegend                      = %s' % str(labelLegend))
