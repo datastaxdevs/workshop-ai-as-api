@@ -57,7 +57,7 @@ interactive workshop featuring
 
 <details><summary>Show me the **credits** for this workshop</summary>
 
-#### Credits
+### Credits
 
 The core of this workshop is an adaptation from the excellent content ["AI as an API,"](https://www.youtube.com/watch?v=56qQNcHJxyQ)
 created by [CodingEntrepreneurs](https://www.youtube.com/channel/UCWEHue8kksIaktO8KTTN_zg).
@@ -191,6 +191,7 @@ explorer on the left, a file editor on the top
 </details>
 
 
+
 ## Train the model
 
 The goal of this phase is to have our text classifier model ready
@@ -198,7 +199,8 @@ to be used: that means, not only will we train it on a labeled dataset,
 but also we will take care of exporting it in a format suitable
 for later loading by the API.
 
-#### Inspect the starting dataset
+
+### Inspect the starting dataset
 
 Open the file `training/dataset/spam-dataset.csv` and have a look
 at the lines there. (_Tip_: you can open a file in Gitpod by locating
@@ -230,7 +232,8 @@ jump to a specific line number.)
     <img src="images/gitpod_gotoline.png?raw=true" />
 </details>
 
-#### Prepare the dataset for training
+
+### Prepare the dataset for training
 
 We want to "teach" a machine to distinguish between spam and ham: unfortunately,
 machines prefer to speak numbers rather than words.
@@ -273,7 +276,8 @@ directory. Two observations are in order:
 Try to have a look at the `pickle` file created by the `prepareDataset.py` script. Well,
 it's a binary file indeed, and there is not much to be seen there. Let's move along.
 
-#### Train the model
+
+### Train the model
 
 It is time to train the model, i.e. fit a neural network to the task of
 associating _a spam/ham label to a text message_.
@@ -308,7 +312,8 @@ Take a look in the output directory: there should be
 - a (larger) JSON file containing the full definition of the tokenizer. This has been created, and will be loaded, using helper functions provided with the tokenizer itself for our convenience;
 - a (rather large) binary file containing "the model". That means, among other things, the shape and topology of the neural network and all "weights", i.e. the parameters dictating which neurons will affect which others, and by how much. Saving and loading this file, which is in the HDF5 format, is best left to routines kindly offered by Keras.
 
-#### Test the trained model
+
+### Test the trained model
 
 Before moving on to the API section, let us just make sure that the saved
 trained model is self-contained: that is, let's check that by loading
@@ -345,7 +350,7 @@ in this test code?**
 
 <details><summary>Tell me the answer</summary>
 
-The function `predictSpamStatus` always receives a single text as input,
+**Answer:** The function `predictSpamStatus` always receives a single text as input,
 but this text is made into a one-element list before encoding as numbers
 (`pTokenizer.texts_to_sequences([text])`). Much in the same way,
 once the model has emitted its prediction, the code gets the first (and only)
@@ -359,31 +364,97 @@ turns out to be the case.
 
 
 
-## Part 2: expose as an API
+## Expose as API
 
-- cp .env.sample .env and fill it (+bundle, id, secret)
+Now your model is trained and saved to disk, ready to be used.
+It is time to expose it with FastAPI in the form of easy-to-use
+HTTP requests.
+
+We will first look at a minimal version of the API, just to get a first
+taste of how FastAPI works, and then turn to a full-fledged version,
+with more endpoints and a database-backed caching layer.
+
+
+### Configure dot-env and DB connect bundle
+
+Remember the "Secure Connect Bundle" you downloaded earlier from the Astra DB UI?
+It's time to upload it to Gitpod.
+
+> If you work locally, skip the upload and just be aware of the path to it for what comes next in the `.env` file.
+
+Locate the file on your computer using the "finder/explorer".
+Drag and drop the bundle into the Gitpod explorer window: _make sure you drop it on the
+file explorer window in Gitpod._
+
+<details><summary>Show me how to drag-and-drop the bundle to Gitpod</summary>
+    <img src="images/drag-and-drop-bundle.png?raw=true" />
+</details>
+
+As a check, you may want to verify the file is available in the right location with:
+
+    ls -lh secure-connect-*.zip
+
+The output should tell you the exact file name (you can also make sure the
+file size is around 12KB while you are at it).
+
+Now we must prepare a **dot-env file** containing the configuration
+required by the API (directory names, paths and, most important, the parameters
+to access the Astra DB persistence layer).
+
+Make a copy of the example environment file and open it in the editor with
+
+```
+cp .env.sample .env
+gp open .env
+```
+
+Most of the settings in this file are already filled for you (they will be
+picked up by the API as you start it).
+
+_Important:_ Make sure you paste your App ID and App Secret obtained earlier with the
+Astra DB Token in the `ASTRA_DB_CLIENT_SECRET` and `ASTRA_DB_CLIENT_ID` variables
+(keep the quotes and don't leave spaces around the equal sign).
+
+As for the `ASTRA_DB_KEYSPACE` and `ASTRA_DB_BUNDLE_PATH` settings, you probably
+don't need to worry (they must match the keyspace you created earlier in the
+database and the location and file name of the Secure Connect Bundle you just
+uploaded to Gitpod, respectively.)
+
+
+### Baby steps: a minimal API
+
+`uvicorn api.minimain:app --reload`
+
 - look at minimain code
-- `uvicorn api.minimain:miniapp`, a couple of CURLs, quckly
+
+- a couple of CURLs, quckly
+
+### Start the full API
+
 - STOP minimain and look at the complete main api:
     model class
     caching, DB access and object mapper
     typing
     settings
     calls log, caller "id" and streaming
+
+
+## Use the API
+
+API Docs (`http://127.0.0.1:8000/docs`) and API testing
+
+Also check on Astra DB
+
 - run the main api
     a couple of CURLs, in sequence to illustrate caching
     keep an eye on CQL Console
     swagger UI to play a bit (e.g. with the streaming + curl!), ```echo `gp url 8000`/docs```
-- homeworks
 
 
 ## Notes:
 
 some more notes on X-Forwarded-For ? https://stackoverflow.com/questions/60098005/fastapi-starlette-get-client-real-ip
 
-Notes: python3.9/3.10 can get pandas==1.4.0 but python3.7 can get to 1.3.5 max so when trying a venv with py37 (previous: 3.9+) I changed reqfile from `pandas=1.4.0` to `pandas>=1.3.5`.
-
-It seems to work (py3.7)
 
 ## Curls for the API
 
@@ -402,7 +473,3 @@ curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance
 curl "localhost:8000/prediction?text=rrr&skip_cache=true"
 
 ```
-
-## swagger
-
-http://127.0.0.1:8000/docs
