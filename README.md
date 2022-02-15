@@ -1,7 +1,7 @@
 <!--- STARTEXCLUDE --->
 # NLP text classification as an API
 
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/hemidactylus/NLP-classifier-API)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/datastaxdevs/workshop-ai-as-api)
 [![License Apache2](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Discord](https://img.shields.io/discord/685554030159593522)](https://discord.com/widget?id=685554030159593522&theme=dark)
 
@@ -91,7 +91,7 @@ we have you covered. In this repository, you'll find everything you need for thi
 
 ## Homework
 
-<img src="images/nlp-as-api-badge.png?raw=true" width="200" align="right" />
+<img src="images/ai_as_api_badge.png?raw=true" width="200" align="right" />
 
 Don't forget to complete your assignment and get your **verified skill badge**:
 
@@ -132,7 +132,7 @@ _**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all
 Start by Ctrl-clicking on this button (to open in a new tab)
 and then follow the instructions below:
 
-<a href="https://astra.datastax.com"><img src="images/create_astra_db_button.png?raw=true" /></a>
+<a href="https://astra.dev/2-23"><img src="images/create_astra_db_button.png?raw=true" /></a>
 
 - create an Astra DB instance [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-AstraDB-Instance), with database name = `workshops` and keyspace = `spamclassifier`;
 - generate and download a Secure Connect Bundle [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Download-the-secure-connect-bundle);
@@ -162,7 +162,7 @@ The button below will:
 (Note: you may have to authenticate
 through Github in the process):
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hemidactylus/NLP-classifier-API)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/datastaxdevs/workshop-ai-as-api)
 
 In a few minutes, a full IDE will be ready in your browser, with a file
 explorer on the left, a file editor on the top
