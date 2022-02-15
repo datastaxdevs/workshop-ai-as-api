@@ -387,7 +387,7 @@ Drag and drop the bundle into the Gitpod explorer window: _make sure you drop it
 file explorer window in Gitpod._
 
 <details><summary>Show me how to drag-and-drop the bundle to Gitpod</summary>
-    <img src="images/drag-and-drop-bundle.png?raw=true" />
+    <img src="images/gitpod_uploading_bundle_1_annotated.png?raw=true" />
 </details>
 
 As a check, you may want to verify the file is available in the right location with:
