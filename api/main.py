@@ -53,6 +53,9 @@ DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 @app.on_event("startup")
 def onStartup():
+    """
+    load/prepare/initialize all global variables for usage by the running API.
+    """
     logging.basicConfig(level=logging.INFO)
     logging.info('     API Startup begins')
     global startTime
@@ -85,6 +88,10 @@ def onStartup():
 
 @app.get('/', response_model=APIInfo, tags=['info'])
 def basic_info(request: Request):
+    """
+    Show some basic API configuration parameters,
+    along with the identity of the caller as seen by the server.
+    """
     settings = getSettings()
     # prepare to return the non-secret settings...
     info = {
@@ -102,6 +109,11 @@ def basic_info(request: Request):
 
 @app.post('/prediction', response_model=PredictionResult, tags=['classification'])
 def single_text_prediction(query: SingleTextQuery, request: Request):
+    """
+    Get the classification result for a single text.
+
+    Uses cache when available, unless instructed not to do so.
+    """
     cached = None if query.skip_cache else readCachedPrediction(query.text, echoInput=query.echo_input)
     storeCallsToLog([query.text], request.client[0])
     if not cached:
@@ -116,22 +128,42 @@ def single_text_prediction(query: SingleTextQuery, request: Request):
 
 @app.get('/prediction', response_model=PredictionResult, tags=['classification'])
 def single_text_prediction_get(request: Request, query: SingleTextQuery = Depends()):
+    """
+    Get the classification result for a single text (through a GET request).
+
+    Uses cache when available, unless instructed not to do so.
+    """
+
+    # We "recycle" the very same function attached to the POST endpoint
+    # (this GET endpoint is there to exemplify a GET route with parameters, that's all.
+    # Well, it also makes it for a more browser-friendly way of testing the API, I guess).
     return single_text_prediction(query, request)
 
 
 @app.post('/predictions', response_model=List[PredictionResult], tags=['classification'])
 def multiple_text_predictions(query: MultipleTextQuery, request: Request):
-    """ Ignoring reading from cache, this would simply be:
-            results = spamClassifier.predict(query.texts, echoInput=query.echo_input)
-            storeCallsToLog(query.texts, request.client[0])
-            #
-            for t, r in zip(query.texts, results):
-                cachePrediction(t, r)
-            #
-            return results
-        In the following we get a bit sophisticated and retrieve
-        what we can from cache (doing the rest and re-merging at the end)
-        (the assumption here is that predicting is much more expensive)
+    """
+    Get the classification result for a list of texts.
+
+    Uses cache when available, unless instructed not to do so.
+
+    _Internal notes:_
+
+    care is taken to separate cached and noncached inputs, process
+    only the noncached ones, and merge the full output back for returning.
+    """
+
+    """ NOTE: Ignoring reading from cache, this would simply be:
+        results = spamClassifier.predict(query.texts, echoInput=query.echo_input)
+        storeCallsToLog(query.texts, request.client[0])
+        #
+        for t, r in zip(query.texts, results):
+            cachePrediction(t, r)
+        #
+        return results
+    In the following we get a bit sophisticated and retrieve
+    what we can from cache (doing the rest and re-merging at the end)
+    (the assumption here is that predicting is much more expensive)
     """
     # what is in the cache?
     cachedResults = [
@@ -174,18 +206,18 @@ def multiple_text_predictions(query: MultipleTextQuery, request: Request):
 @app.get('/recent_log', response_model=List[CallerLogEntry], tags=['info'])
 def get_recent_calls_log(request: Request):
     """
-        Get a list of all classification requests issued by the caller in the
-        current hour.
+    Get a list of all classification requests issued by the caller in the
+    current hour.
 
-        Internally:
+    _Internal notes:_
 
-        The response of this endpoint may potentially be a long list and we
-        don't want to have it all in memory at once, so we stream the response
-        as it is progressively fetched from the database.
+    The response of this endpoint may potentially be a long list and we
+    don't want to have it all in memory at once, so we stream the response
+    as it is progressively fetched from the database.
 
-        Note: we do not actually use pydantic conversion in creating
-        the response since it is streamed, but still we want to annotate
-        this endpoint (e.g. for the docs) with 'response_model' above.
+    Note: we do not actually use pydantic conversion in creating
+    the response since it is streamed, but still we want to annotate
+    this endpoint (e.g. for the docs) with 'response_model' above.
     """
     caller_id = request.client[0]
     called_hour = getThisHour()
@@ -213,7 +245,30 @@ def formatCallerLogJSON(caller_id, called_hour):
     yield ']'
 
 
+# utility function to get the whole hour, used as column in the call-log table
+def getThisHour(): return datetime.datetime(*datetime.datetime.now().timetuple()[:4])
+
+
+def storeCallsToLog(inputs, caller_id):
+    """
+    Store a call-log entry to the database.
+    """
+    called_hour = getThisHour()
+    for input in inputs:
+        SpamCallItem.create(
+            caller_id=caller_id,
+            called_hour=called_hour,
+            input=input,
+        )
+
+
 def readCallerLog(caller_id, called_hour):
+    """
+    Query the database to get all caller-log entries
+    for a given caller and hour chunk, and return them as a generator.
+
+    Pagination is handled automatically by the Cassandra drivers.
+    """
     query = SpamCallItem.objects().filter(
         caller_id=caller_id,
         called_hour=called_hour,
@@ -223,6 +278,9 @@ def readCallerLog(caller_id, called_hour):
 
 
 def cachePrediction(input, resultMap):
+    """
+    Store a cached-text entry to the database.
+    """
     cacheItem = SpamCacheItem.create(
         input=input,
         result=resultMap['top']['label'],
@@ -232,6 +290,14 @@ def cachePrediction(input, resultMap):
 
 
 def readCachedPrediction(input, echoInput=False):
+    """
+    Try to retrieve a cached-text entry from the database.
+    Return None if nothing is found.
+
+    Note that this explicitly needs to read model version from
+    the settings to run the correct select (through the object mapper)
+    to the database.
+    """
     settings = getSettings()
     cacheItems = SpamCacheItem.filter(
         model_version=settings.model_version,
@@ -251,16 +317,3 @@ def readCachedPrediction(input, echoInput=False):
         }
     else:
         return None
-
-
-def storeCallsToLog(inputs, caller_id):
-    called_hour = getThisHour()
-    for input in inputs:
-        SpamCallItem.create(
-            caller_id=caller_id,
-            called_hour=called_hour,
-            input=input,
-        )
-
-
-def getThisHour(): return datetime.datetime(*datetime.datetime.now().timetuple()[:4])
