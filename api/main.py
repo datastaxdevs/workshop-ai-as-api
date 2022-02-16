@@ -6,20 +6,21 @@
 import pathlib
 import datetime
 import logging
-import json
 from typing import List
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import StreamingResponse
 from cassandra.cqlengine.management import sync_table
-from cassandra.util import datetime_from_uuid1
 
 from api.AIModel import AIModel
 from api.config import getSettings
 from api.schema import (SingleTextQuery, MultipleTextQuery)
 from api.schema import (APIInfo, PredictionResult, CallerLogEntry)
 
+from api.dbio import (formatCallerLogJSON, storeCallsToLog, cachePrediction,
+                      readCachedPrediction, getThisHour)
 from api.database.db import initSession
 from api.database.models import (SpamCacheItem, SpamCallItem)
+
 
 apiDescription="""
 Spam Classifier API
@@ -49,7 +50,6 @@ startTime = None
 spamClassifier = None
 DBSession = None
 
-DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 @app.on_event("startup")
 def onStartup():
@@ -100,7 +100,7 @@ def basic_info(request: Request):
         if k not in settings.secret_fields
     }
     # plus some more fields:
-    info['started_at'] = startTime.strftime(DATE_FORMAT)
+    info['started_at'] = startTime.strftime('%Y-%m-%d %H:%M:%S.%f')
     # if behind a reverse proxy, we must use X-Forwarded-For ...
     info['caller_id'] = request.client[0]
     # done.
@@ -114,7 +114,8 @@ def single_text_prediction(query: SingleTextQuery, request: Request):
 
     Uses cache when available, unless instructed not to do so.
     """
-    cached = None if query.skip_cache else readCachedPrediction(query.text, echoInput=query.echo_input)
+    settings = getSettings()
+    cached = None if query.skip_cache else readCachedPrediction(settings.model_version, query.text, echoInput=query.echo_input)
     storeCallsToLog([query.text], request.client[0])
     if not cached:
         result = spamClassifier.predict([query.text], echoInput=query.echo_input)[0]
@@ -166,8 +167,9 @@ def multiple_text_predictions(query: MultipleTextQuery, request: Request):
     (the assumption here is that predicting is much more expensive)
     """
     # what is in the cache?
+    settings = getSettings()
     cachedResults = [
-        None if query.skip_cache else readCachedPrediction(text, echoInput=query.echo_input)
+        None if query.skip_cache else readCachedPrediction(settings.model_version, text, echoInput=query.echo_input)
         for text in query.texts
     ]
     # what must be done?
@@ -223,97 +225,3 @@ def get_recent_calls_log(request: Request):
     called_hour = getThisHour()
     #
     return StreamingResponse(formatCallerLogJSON(caller_id, called_hour))
-
-
-def formatCallerLogJSON(caller_id, called_hour):
-    """
-    Takes care of making the caller log into a stream of strings
-    forming, overall, a valid JSON. Tricky are the commas.
-    """
-    isFirst = True
-    yield '['
-    for index, item in enumerate(readCallerLog(caller_id, called_hour)):
-        yield '%s%s' % (
-            '' if isFirst else ',',
-            json.dumps({
-                'index': index,
-                'input': item.input,
-                'called_at': datetime_from_uuid1(item.called_at).strftime(DATE_FORMAT),
-            }),
-        )
-        isFirst = False
-    yield ']'
-
-
-# utility function to get the whole hour, used as column in the call-log table
-def getThisHour(): return datetime.datetime(*datetime.datetime.now().timetuple()[:4])
-
-
-def storeCallsToLog(inputs, caller_id):
-    """
-    Store a call-log entry to the database.
-    """
-    called_hour = getThisHour()
-    for input in inputs:
-        SpamCallItem.create(
-            caller_id=caller_id,
-            called_hour=called_hour,
-            input=input,
-        )
-
-
-def readCallerLog(caller_id, called_hour):
-    """
-    Query the database to get all caller-log entries
-    for a given caller and hour chunk, and return them as a generator.
-
-    Pagination is handled automatically by the Cassandra drivers.
-    """
-    query = SpamCallItem.objects().filter(
-        caller_id=caller_id,
-        called_hour=called_hour,
-    )
-    for item in query:
-        yield item
-
-
-def cachePrediction(input, resultMap):
-    """
-    Store a cached-text entry to the database.
-    """
-    cacheItem = SpamCacheItem.create(
-        input=input,
-        result=resultMap['top']['label'],
-        confidence=resultMap['top']['value'],
-        prediction_map=resultMap['prediction'],
-    )
-
-
-def readCachedPrediction(input, echoInput=False):
-    """
-    Try to retrieve a cached-text entry from the database.
-    Return None if nothing is found.
-
-    Note that this explicitly needs to read model version from
-    the settings to run the correct select (through the object mapper)
-    to the database.
-    """
-    settings = getSettings()
-    cacheItems = SpamCacheItem.filter(
-        model_version=settings.model_version,
-        input=input,
-    )
-    cacheItem = cacheItems.first()
-    if cacheItem:
-        return {
-            **{
-                'prediction': cacheItem.prediction_map,
-                'top': {
-                    'label': cacheItem.result,
-                    'value': cacheItem.confidence,
-                },
-            },
-            **({'input': cacheItem.input} if echoInput else {}),
-        }
-    else:
-        return None
