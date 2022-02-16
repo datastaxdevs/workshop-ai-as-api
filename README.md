@@ -55,7 +55,7 @@ interactive workshop featuring
 
 > Attending the session is not enough. You need to complete the homeworks detailed below and you will get a nice participation certificate a.k.a. badge.
 
-<details><summary>Show me the **credits** for this workshop</summary>
+<details><summary>Show me the credits for this workshop</summary>
 
 ### Credits
 
@@ -95,9 +95,9 @@ we have you covered. In this repository, you'll find everything you need for thi
 
 Don't forget to complete your assignment and get your **verified skill badge**:
 
-1. do all practice steps described below until you can query your API running in Gitpod.
-2. Now roll up your sleeves and modify the code as follows: add an endpoint that exposes the neural net configuration for the classifier model. [See below for detailed explanations!](#homework-detailed-instructions).
-3. Take a SCREENSHOT of requests/responses with the modified API. _Note: you will have to restart the API to see all changes!_
+1. Do all practice steps described below until you can query your API running in Gitpod.
+2. Now roll up your sleeves and modify the code as follows: add an endpoint that exposes the neural net configuration of the classifier model. [**See below for detailed explanations**](#homework-detailed-instructions).
+3. Take a SCREENSHOT of requests/responses showing the new endpoint at work. _Note: you will have to restart the API for the changes to take effect._
 4. Submit your homework [here](#).
 
 That's it, you are done! Expect an email in a few days!
@@ -114,7 +114,7 @@ That's it, you are done! Expect an email in a few days!
 3. [Train the model](#train-the-model)
 4. [Expose as API](#expose-as-api)
 5. [Use the API](#use-the-api)
-6. [Homework instructions](#homework-instructions)
+6. [Homework instructions](#homework-detailed-instructions)
 
 
 
@@ -135,7 +135,7 @@ and then follow the instructions below:
 <a href="https://astra.dev/2-23"><img src="images/create_astra_db_button.png?raw=true" /></a>
 
 - create an Astra DB instance [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-AstraDB-Instance), with database name = `workshops` and keyspace = `spamclassifier`;
-- generate and download a Secure Connect Bundle [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Download-the-secure-connect-bundle);
+- generate and download a Secure Connect Bundle [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Download-the-secure-connect-bundle). You will later upload the bundle file to Gitpod;
 - generate and retrieve a DB Token [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-Astra-Token#c---procedure). **Important**: use the role "DB Administrator" for the token. You will later need the "Client ID" and "Client Secret" for this token.
 
 Moreover, keep the Astra DB dashboard open: it will be useful later.
@@ -172,13 +172,12 @@ explorer on the left, a file editor on the top
 > between the `tensorflow` package and others (notably `numpy`). You should
 > be able to ignore them and just go ahead.
 
-> There are many more other features, probably familiar to those who have
-> experience with VSCode. Feel free to play around a bit!
-
 > If you want to work on your laptop, make sure you install all Python
 > dependencies listed in `requirements.txt` (doing so in a Python virtual
 > environment is _strongly suggested_) and add the main repo root
-> to the `PYTHONPATH`. Also, please note that the model training phase may take
+> to the `PYTHONPATH`. If you are on Python 3.6, you will additionally need to
+> install the `dataclasses` package (i.e. `pip install dataclasses`).
+> Also, please note that the model training phase may take
 > much longer than ten minutes, depending on your processing power.
 
 <details><summary>Show me a map of the Gitpod starting layout</summary>
@@ -189,6 +188,10 @@ explorer on the left, a file editor on the top
 2. Editor
 3. Panel for console(s)
 4. Console switcher
+
+There are many more other features, probably familiar to those who have
+experience with VSCode. Feel free to play around a bit!
+
 </details>
 
 
@@ -223,7 +226,7 @@ and [this one](https://archive.ics.uci.edu/ml/datasets/YouTube+Spam+Collection))
 
 Luckily for you, the (not always fun) task of cleaning, validating and normalizing the
 heterogeneous (and usually imperfect) data has been already done for you -- something
-that is seldom true, alas, in a real-world task.
+that is seldom the case, alas, in a real-world task.
 
 Look at line 352 of this file for an example we will inspect time and again:
 is that message spam or ham? (_Tip_: hit Ctrl-G in the Gitpod editor to
@@ -249,7 +252,7 @@ More precisely:
 1. first we will initialize a "tokenizer", asking it to build a dictionary (i.e. a token/number mapping) best suited for the texts at hand;
 2. then, we will use the tokenizer to reduce all messages into (variable-length) sequences of numbers;
 3. these sequences will be "padded", i.e. we will make sure they end up all having the same length: in this way, the whole dataset will be represented by a rectangular matrix of integer numbers, possibly with leading zeroes;
-4. the "spam/ham" column of the input dataset is recast as "one-hot": that is, it is made into two columns, one for "spamminess" and one for "hamminess", both admitting the values zero or one (but with a single "one" per row): this turns out to be a formulation much friendlier to machine-learning tasks in general;
+4. the "spam/ham" column of the input dataset is recast as "one-hot": that is, it is made into two columns, one for "spamminess" and one for "hamminess", both admitting the values zero or one (but with a single "one" per row): this turns out to be a formulation much friendlier to categorical classification tasks in general;
 5. finally we will split the labeled dataset into a "training" and a "testing" disjoint parts. This is a very important concept: the effectiveness of a model should always be validated on data points **not used during training**.
 
 All these steps can be largely automated by using data-science Python packages
@@ -271,7 +274,7 @@ The dataset preparation starts with the CSV file you saw earlier
 and ends up exporting the new data format in the `training/prepared_dataset`
 directory. Two observations are in order:
 
-- the "big matrix of numbers" encoding the messages and the one containing their spam/ham status are useless without the tokenizer: after all, to process a new message you would need to know how to make it into a sequence of numbers, right?
+- the "big matrix of numbers" encoding the messages and the one containing their spam/ham status are useless without the tokenizer: after all, to process a new message you would need to know how to make it into a sequence of numbers. For this reason, it is important to export the tokenizer as well to later _use_ the classifier.
 - the `pickle` protocol used in writing the reformulated data is strictly Python-specific and should not be treated as a long-term (or interoperable!) format. Please see next step (below) for a sensible way to store model, tokenizer and metadata on disk.
 
 Try to have a look at the `pickle` file created by the `prepareDataset.py` script. Well,
@@ -293,29 +296,30 @@ launch the script
 python trainModel.py
 ```
 
-and wait for it to finish (it will take probably twelve minutes or so on Gitpod).
+and wait for it to finish (it will take probably twelve minutes or so on Gitpod,
+possibly more on your own computer, depending on the specs).
 
 The training script works as follows:
 
 1. all variables created and stored in the previous steps are loaded back to memory;
-2. a specific architecture of a neural network is created, still a "blank slate" in terms of what it "knows". Its structure is that of a LSTM ([long-short-term-memory](https://en.wikipedia.org/wiki/Long_short-term_memory)), a [specific kind](https://www.tensorflow.org/api_docs/python/tf/keras/layers/LSTM) of recurrent neural network with some clever modifications aimed at enhancing its ability to "remember" things between non-adjacent locations in a sequence, such as two displaced positions in a string of text;
+2. a specific architecture of a neural network is created, still a "blank slate" in terms of what it "knows". Its core structure is that of a LSTM ([long-short-term-memory](https://en.wikipedia.org/wiki/Long_short-term_memory)), a [specific kind](https://www.tensorflow.org/api_docs/python/tf/keras/layers/LSTM) of recurrent neural network with some clever modifications aimed at enhancing its ability to "remember" things between non-adjacent locations in a sequence, such as two displaced positions in a string of text;
 3. the network (our classifier) is trained: that means it will progressively adapt its internal (many thousands of) parameters in order to best reproduce the input training set. Each individual neuron in the network is a relatively simple component - the "intelligence" coming from their sheer quantity and the particular choice of parameters determining which neurons affect which other and by how much;
 4. Once the training process has finished, the script carefully saves everything (model, tokenizer and associated metadata) in a format that can be later loaded by the API in a stand-alone way.
 
 <details><summary>Show me Gitpod during training</summary>
 
+#### The training process
+
 Training progresses in "epochs", each epoch representing a complete sweep
 through the input dataset. Several metrics are printed during training:
 
 - `accuracy`: this is the fraction of predictions that match the labeled input (higher is better);
-- `loss`: the value of the "loss function", which measures how close are the predictions to the input data (lower is better). The precise definition of the loss function is derived from information theory: the idea is to quantify "departure from ideal predictions" fairly in all directions and in a way that favors gradual improvement of the parameters. _In [our case](https://keras.io/api/losses/probabilistic_losses/#categoricalcrossentropy-class), we choose the ["categorical cross-entropy"](https://en.wikipedia.org/wiki/Cross_entropy) loss function, particularly suitable for models that choose between two or more output labels_;
+- `loss`: the value of the "loss function", which measures how close are the predictions to the input data (lower is better). The precise definition of the loss function is derived from information theory: the idea is to quantify "departure from ideal predictions" fairly in all directions and in a way that favors gradual improvement of the parameters. _In [our case](https://keras.io/api/losses/probabilistic_losses/#categoricalcrossentropy-class), we employ the ["categorical cross-entropy"](https://en.wikipedia.org/wiki/Cross_entropy) loss function, particularly suitable for models that choose between two or more output labels_;
 - `val_accuracy`, `val_loss`: the same quantities as above, but calculated at end of epoch on the validation dataset (i.e. the `X_test` and `y_test` portion of the input labeled data).
 
 <img src="images/during_training.png?raw=true" />
 
 </details>
-
-accuracy val_accuracy loss val_loss
 
 Perhaps by now the training process is completed and everything has been
 saved in the `training/trained_model_v1` directory (_Note_: we keep a version
@@ -326,14 +330,14 @@ Take a look in the output directory: there should be
 
 - a (small) JSON file with some metadata describing some features of the model;
 - a (larger) JSON file containing the full definition of the tokenizer. This has been created, and will be loaded, using helper functions provided with the tokenizer itself for our convenience;
-- a (rather large) binary file containing "the model". That means, among other things, the shape and topology of the neural network and all "weights", i.e. the parameters dictating which neurons will affect which others, and by how much. Saving and loading this file, which is in the HDF5 format, is best left to routines kindly offered by Keras.
+- a (rather large) binary file containing "the model". That means, among other things, the shape and topology of the neural network and all "weights", i.e. the parameters dictating which neurons will affect which others, and by how much. Saving and loading this file, which is in the [HDF5 format](https://www.tensorflow.org/tutorials/keras/save_and_load#hdf5_format), is best left to routines kindly offered by Keras.
 
 
 ### Test the trained model
 
 Before moving on to the API section, let us just make sure that the saved
 trained model is self-contained: that is, let's check that by loading
-the contents of `training/trained_model_v1` and nothing else we are able
+the contents of `training/trained_model_v1`, and nothing else, we are able
 to perform meaningful estimates of the spam/ham status for a new arbitrary
 piece of text.
 
@@ -356,12 +360,13 @@ ML-based classifiers are very sophisticated machines for statistical inference.
 
 If you look at the (very simple) code of this function, you will see how the
 model, once loaded, is used to make predictions (it all boils down to the model's
-`predict` method, but first the input text must be recast as sequence of numbers,
-and likewise the results must be made readable by humans again).
+`predict` method, but first the input text must be recast as sequence of numbers
+with the aid of the tokenizer,
+and likewise the result must be made readable by humans again).
 
 _Note_: the model lends itself very well to processing several input texts
-in parallel (which generally is a big advantage in terms of performance; it is
-something we will exploit in the API as well). **Can you see where this is apparent
+in parallel (which generally is a big advantage in terms of performance);
+we will exploit this fact in the API as well. **Can you see where this is apparent
 in this test code?**
 
 <details><summary>Tell me the answer</summary>
@@ -386,7 +391,7 @@ Now your model is trained and saved to disk, ready to be used.
 It is time to expose it with FastAPI in the form of easy-to-use
 HTTP requests.
 
-We will first look at a minimal version of the API, just to get a first
+We will first look at a minimal version of the API, just to get a
 taste of how FastAPI works, and then turn to a full-fledged version,
 with more endpoints and a database-backed caching layer.
 
@@ -447,15 +452,21 @@ uvicorn api.minimain:miniapp --reload
 ```
 
 > In this command, you are telling `uvicorn` (an ASGI server capable of running
-> asynchronous Python APIs) to launch the `app` API found in the `minimain` module;
+> asynchronous Python APIs) to launch the `miniapp` API found in the `minimain` module;
 > you also ask it to keep a watch on all involved files and auto-reload on any
 > file change.
 
 After some (rather verbose) output from Tensorflow, you should see the
-`INFO: Application startup complete.` notice: the API is ready to accept
+`INFO: Application startup complete.` notice: the API has loaded the classifier
+and is ready to accept
 requests (on localhost and port 8000, as per defaults).
 We will first fire some requests and then have a quick look at how
 the code is structured.
+
+> Note that this code is purposefully kept very simple: besides
+> not implementing all features, it also refrains from using some of the facilities
+> provided by FastAPI to better focus on the basics. Look at the full API below
+> for a more comprehensive usage of the framework.
 
 #### Query the minimal API
 
@@ -476,7 +487,7 @@ summary, in JSON form, of some of the API parameters inherited through the
 The logic to retrieve these settings and make them available to the API
 is in the `config.py` module and relies on the `pydantic` package,
 that excels at data validation while allowing for surprisingly short and clean
-code. `pydantic` pairs very well with FastAPI ([documentation](#)).
+code. `pydantic` pairs very well with FastAPI ([documentation](https://fastapi.tiangolo.com/advanced/settings/)).
 
 > If you are feeling adventurous, try stopping the API (Ctrl-C in the API
 > shell) and re-starting as
@@ -512,7 +523,7 @@ obtain will not necessarily match what you see here. But you can expect
 a broad agreement, with the first text being seen as "spam" with at least 80%
 confidence and the second one being labeled "ham" at least as clearly.
 
-<img src="images/miniapi_requests.png.png?raw=true" />
+<img src="images/miniapi_requests.png?raw=true" />
 
 </details>
 
@@ -520,11 +531,12 @@ confidence and the second one being labeled "ham" at least as clearly.
 
 What is running now is a basic API architecture, which makes use of just
 the fundamental features of FastAPI: you will shortly launch a more
-sophisticated API. But first let us make some observation on the
+sophisticated one. But first let us make some observations on the
 code structure:
 
 The main object is the `FastAPI` instance called `miniapp`: this exposes a
-_decorator_ that can be used to attach a Python function to an API endpoint
+_decorator_ that can be used to [attach a Python function](https://fastapi.tiangolo.com/tutorial/first-steps/#define-a-path-operation-decorator)
+to an API endpoint
 (see e.g. the `@miniapp.get('/')` preceding the function definition).
 FastAPI will try to match the function arguments with the request parameters.
 
@@ -547,6 +559,11 @@ is used to "register" some operations, effectively scheduling them for execution
 as soon as the rest of the API is loaded. Then, the model will live as a global
 variable accessible from the various endpoint functions.
 
+**Note**: have a look at the class in `AIModel.py`: there is nothing specific
+to spam classification there. Indeed, this is a widely **reusable class**, that can
+load and expose any text classifier based on a similar tokenizer-then-predict
+structure as it is.
+
 ### Inspect the full API
 
 You can now stop the minimal API (Ctrl-C in its console) and get ready to start
@@ -554,9 +571,12 @@ the full API. This is our "production-ready" result and, as such, has many more
 nice features that we will now list (just giving pointers for those interested
 in knowing more):
 
+<details><summary>Tell me about the nice features of this API</summary>
+
 #### Database and Caching
 
-In general, running classifier can be expensive in terms of CPU and time. Since,
+In general, running a classifier on some input can be expensive in terms of CPU
+and time. Since,
 once the model is trained, predictions are deterministic, it would make sense
 to introduce a caching mechanism, whereby texts that were already processed
 and cached are not computed again.
@@ -568,9 +588,10 @@ that we will keep alive throughout the life of the API; and methods to write,
 and read, entries in that table.
 
 Technically, we will use the Cassandra Python drivers, and in particular
-we will use the Object Mapper facility they offer. Look into `api/database/*.py`:
-there is a module that sets up the connection, using the secrets found in the `.env`,
-and another where the models are defined - in particular the `SpamCacheItem` model.
+we will use the [Object Mapper facility](https://docs.datastax.com/en/developer/python-driver/3.25/object_mapper/)
+they offer. Look into `api/database/*.py`:
+there is a module that [sets up the connection](https://docs.datastax.com/en/developer/python-driver/3.25/getting_started/#connecting-to-astra), using the secrets found in the `.env`,
+and another where the models are defined - in particular the `SpamCacheItem` model, representing an entry in the cache.
 
 The database initialization will go together with the spam-model loading into
 the API "startup" hook.
@@ -597,9 +618,9 @@ to ensure this is handled sparingly and transparently to the caller.
 
 We love well-documented APIs. And FastAPI makes it pretty easy to do so:
 
-- when instantiating the main `FastAPI` object, all sorts of properties (version number, grouping of endpoints, API title and so on) can be passed to it;
-- docstrings in the endpoint functions, and even the function names themselves, are known to FastAPI;
-- additional annotations can be passed to the endpoint decorators, such as the expected structure of the response JSON (for this reason, we took the extra care of defining `pydantic` models for the responses as well, for instance `PredictionResult`).
+- when instantiating the main `FastAPI` object, all sorts of properties (version number, grouping of endpoints, API title and so on) [can be passed to it](https://fastapi.tiangolo.com/tutorial/metadata/);
+- docstrings in the endpoint functions, and even the function names themselves, [are known to FastAPI](https://fastapi.tiangolo.com/tutorial/path-operation-configuration/#description-from-docstring);
+- additional annotations can be passed to the endpoint decorators, such as the expected structure of the [response JSON](https://fastapi.tiangolo.com/tutorial/response-model/#response-model) (for this reason, we took the extra care of defining `pydantic` models for the responses as well, for instance `PredictionResult`).
 
 This is all used by FastAPI to automatically expose a Swagger UI that makes it easy
 to experiment with the running API and test it
@@ -624,7 +645,7 @@ to the caller. Especially considering the data from the database will be paginat
 (in a way that is handled automatically for us by the Cassandra drivers' object models).
 
 So what do we do here? It would be nice to start streaming out the API response
-as chunks of data arrive from the database ... and that is exactly what we do,
+as the first chunk of data arrives from the database ... and that is exactly what we do,
 with the `StreamingResponse` construct [provided by FastAPI](https://fastapi.tiangolo.com/advanced/custom-response/?h=streamingresponse#streamingresponse).
 
 The idea is very simple: we wrap something like a generator with `StreamingResponse` and FastAPI handles the rest.
@@ -639,25 +660,30 @@ and a short account on the reason for that choice, see below (section "Inspect t
 
 For illustrative purposes, the API also has a GET endpoint for requesting
 (single-)text classification. A useful feature is that the `pydantic` models
-declared as endpoint dependencies will be filled with query
+declared as endpoint dependencies will be filled also using query
 parameters, if they are available and the names match. In this way, the
 GET endpoint will work, and will internally be able to use a `SingleTextQuery`,
 even when invoked as follows (try it!)
 
 ```
 curl -s \
-    "localhost:8000/prediction?text=This+is+a+nice+day&skip_cache=true&echo_input=1" | python -mjson.tool
+    "localhost:8000/prediction?text=This+is+a+nice+day&skip_cache=true&echo_input=1" \
+    | python -mjson.tool
 ```
 
 (The way to have this mechanism working goes through the topic of dependency injection
 in FastAPI and in particular the "classes as dependencies" part. See
-[here](https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/?h=%20class%20depe#shortcut)
+[here](https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies#shortcut)
 for more details on this).
+
+</details>
 
 ### Launch the full API
 
-Hit Ctrl-C in the API console (if you didn't already) and launch the following
-command this time (as we approach "production", we do not want the `--reload`
+Without further ado, it is time to start the full-fledged API.
+
+Hit Ctrl-C in the API console (if you didn't already stop the "minimal API")
+and launch the following command this time (as we approach "production", we do not want the `--reload`
 flag any more:
 
 ```
@@ -666,6 +692,11 @@ uvicorn api.main:app
 
 The full API is starting (and again, after a somewhat lengthy output you will
 see something like `Uvicorn running on http://127.0.0.1:8000` being printed).
+
+> If the API cannot start and you see an error such as
+> `urllib.error.HTTPError: HTTP Error 503: Service Unavailable` while connecting
+> to the DB, most likely your Astra DB instance is hibernated. In that case, just open the CQL
+> Console on the Astra UI to bring your DB back to operation.
 
 Let us quickly launch a couple of requests with `curl` on the `bash` console
 (the same requests already sent to the minimal API earlier) and check the
@@ -792,7 +823,7 @@ Finally, reinstate all lines of the stanza (so far we only had the odd ones!):
 How do the values of `from_cache` look like now? (well, no surprises here).
 
 Take a look at the cache-reading logic in the `multiple_text_predictions`
-function code in `main.py`. Sometimes it pays off to carefuly avoid wasting CPU
+function code in `main.py`. Sometimes it pays off to carefully avoid wasting CPU
 cycles.
 
 #### Call log
@@ -805,7 +836,8 @@ instead of relying on FastAPI to package your response as JSON, you manually
 construct its pieces as the data arrives from the database.
 
 This is the reason why Swagger is unable to parse it as JSON even though
-it _is_ a valid JSON. You may want to go back to the `bash` console for this
+it _is_ a valid JSON (i.e. Swagger will display it as a unformatted big piece of text).
+You may want to go back to the `bash` console for this
 endpoint and check the result of:
 
 ```
@@ -840,7 +872,8 @@ waiting for your input.
 > Commands entered in the CQL Console are terminated with a semicolon (`;`)
 > and can span multiple lines. Run them with the `Enter` key. If you want to
 > interrupt the command you are entering, hit `Ctrl-C` to be brought back
-> to the prompt. See [here](#) for more references to the CQL language commands.
+> to the prompt. See [here](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlCommandsTOC.html)
+> for more references to the CQL language commands.
 
 Start by telling the console that you will be using the `spamclassifier` keyspace:
 ```
@@ -861,15 +894,16 @@ And, similarly, let's look at the recent call log for the "localhost":
 ```
 SELECT * FROM spam_calls_per_caller
     WHERE caller_id = '127.0.0.1'
-    AND called_hour='2022-02-15 22:00:00.000Z';
+    AND called_hour='2022-02-23 17:00:00.000Z';
 ```
 > For the above to show results, you have to take care of adapting the
 > date and (whole) hour to current time, and possibly the `caller_id`
 > could be edited to reflect what you see from the Swagger `/` response.
 
 The reason why the call log is partitioned in hourly chunks (and not only
-per `caller_id`) has to do with the way the Cassandra database, on which Astra DB
-is built, works; unfortunately this topic would lead us too far away.
+by `caller_id`) has to do with the way the Cassandra database, on which Astra DB
+is built, works: in short we do not want our partitions to grow indefinitely.
+Unfortunately a thorough discussion of this topic would lead us too far away.
 If you are curious, we strongly recommend you start from the exercises [Data modeling by example](https://www.datastax.com/learn/data-modeling-by-example)
 and [What is Cassandra?](https://www.datastax.com/cassandra).
 You will embark on a long and exciting journey!
@@ -943,7 +977,8 @@ WantedBy=multi-user.target
 
 (`9999` is an internal port you may choose at will, but it must match the file below;
 `4` is the number of workers `uvicorn` will spawn
-and should be tuned to your predicted workload and the server capacity).
+and should be tuned to your predicted workload and the server capacity.
+**Note** that you will have a set of resources, model and DB connection, per each worker).
 
 **Third**, after starting the service (`sudo systemctl daemon-reload && sudo systemctl start spamclassifier`),
 make your API known to `nginx` by creating a file `/etc/nginx/sites-available/spamclassifier_api`:
