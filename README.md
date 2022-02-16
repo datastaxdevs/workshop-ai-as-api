@@ -332,6 +332,12 @@ Take a look in the output directory: there should be
 - a (larger) JSON file containing the full definition of the tokenizer. This has been created, and will be loaded, using helper functions provided with the tokenizer itself for our convenience;
 - a (rather large) binary file containing "the model". That means, among other things, the shape and topology of the neural network and all "weights", i.e. the parameters dictating which neurons will affect which others, and by how much. Saving and loading this file, which is in the [HDF5 format](https://www.tensorflow.org/tutorials/keras/save_and_load#hdf5_format), is best left to routines kindly offered by Keras.
 
+> **Note**: if it is not possible to train the model (it takes too long, or
+> the hardware resources are not enough, whatever), no fear! You will still be
+> able to complete the practice and play with the API using a lightweight
+> _mock model class_. Just remember, when starting the API, to edit the `.env`
+> file so that it reads `MOCK_MODEL_CLASS="0"`.
+
 
 ### Test the trained model
 
@@ -441,6 +447,9 @@ don't need to worry (they must match the keyspace you created earlier in the
 database and the location and file name of the Secure Connect Bundle you just
 uploaded to Gitpod, respectively.)
 
+> If you don't have (or don't want to use) the actual trained model at hand,
+> you can switch to a lightweight mock by setting
+> `MOCK_MODEL_CLASS="0"` in this dot-env file.
 
 ### Baby steps: a minimal API
 

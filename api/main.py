@@ -11,7 +11,6 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import StreamingResponse
 from cassandra.cqlengine.management import sync_table
 
-from api.AIModel import AIModel
 from api.config import getSettings
 from api.schema import (SingleTextQuery, MultipleTextQuery)
 from api.schema import (APIInfo, PredictionResult, CallerLogEntry)
@@ -20,6 +19,15 @@ from api.dbio import (formatCallerLogJSON, storeCallsToLog, cachePrediction,
                       readCachedPrediction, getThisHour)
 from api.database.db import initSession
 from api.database.models import (SpamCacheItem, SpamCallItem)
+
+
+# mockup switch in case one has trouble getting the trained model and
+# wants to play with the API nevertheless (see the .env parameters):
+settings = getSettings()
+if settings.mock_model_class:
+    from api.MockSpamAIModel import MockSpamAIModel as AIModel
+else:
+    from api.AIModel import AIModel
 
 
 apiDescription="""

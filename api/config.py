@@ -27,6 +27,11 @@ class Settings(BaseSettings):
         'secret_fields',
     }
 
+    # mock-model setting (usually False!)
+    # This field will not be returned by the "/" endpoint thanks to the route
+    # enforcing the response to be of type APIInfo.
+    mock_model_class: bool = Field(..., env='MOCK_MODEL_CLASS')
+
     class Config:
         env_file = '.env'
 
