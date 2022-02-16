@@ -72,7 +72,7 @@ if __name__ == '__main__':
     X = pad_sequences(sequences, maxlen=MAX_SEQ_LENGTH)
     print('done')
     if verbose:
-        print('        [len(s) for s in sequences]]     = %s + ...' % str([len(s) for s in sequences[:6]]))
+        print('        [len(s) for s in sequences]      = %s + ...' % str([len(s) for s in sequences[:6]]))
         print('        len(sequences)                   = %s' % str(len(sequences)))
         print('        X.shape                          = %s' % str(X.shape))
         print('        type(X)                          = %s' % str(type(X)))

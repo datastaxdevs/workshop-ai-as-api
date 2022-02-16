@@ -281,28 +281,9 @@ directory. Two observations are in order:
 Try to have a look at the `pickle` file created by the `prepareDataset.py` script. Well,
 it's a binary file indeed, and there is not much to be seen there. Let's move along.
 
-#### Run as a Jupyter notebook
-
-If you want a more interactive experience, the dataset preparation step
-is also available as a notebook: this gives you the possibility to run
-the steps one at a time and explore the contents of the variables you create,
-to better understand the transformations that occur. The notebook, once executed,
-will result in the very same `pickle` file being created as the ordinary Python
-script.
-
-<details><summary>Show me the steps (alternative to invoking the script)</summary>
-
-- Install jupyter in the virtual environment (`pip install jupyter==1.0.0`);
-- go to the `notebook` directory (`cd notebook`) in your console;
-- start Jupyter with `jupyter notebook`: a browser window should open;
-- click on `prepareDataset.ipynb` to open it;
-- you can now Shift-Enter to execute all cells. There are cells with the sole purpose of inspecting the contents of some variables: take your time, use them to better understand what's going on;
-- when you are finished, choose "Close and Halt" from the notebook "File" menu;
-- now close main Jupyter the browser tab and stop the notebook backend that was running in the console (`Ctrl-C` + `y` for confirmation);
-- finally go back to the repo root with `cd ..` in the console.
-
-</details>
-
+**Note**: this step is also available as a Jupyter notebook for a more
+interactive experience. Unfortunately, at the moment this option is
+only available on local development (as opposed to Gitpod).
 
 ### Train the model
 
