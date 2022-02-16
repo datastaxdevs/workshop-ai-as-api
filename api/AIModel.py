@@ -44,7 +44,8 @@ class AIModel:
 
     def getPaddedSequencesFromTexts(self, texts: List[str]):
         """
-            DOCSTRING
+        Convert a list of texts into the corresponding list
+        of (zero-left-padded) integer lists using the tokenizer.
         """
         sequences = self.tokenizer.texts_to_sequences(texts)
         maxSeqLength = self.metadata['max_seq_length']
@@ -54,14 +55,16 @@ class AIModel:
 
     def getLabelName(self, labelIndex):
         """
-            DOCSTRING
+        Convert a numeric index to the corresponding label text
+        for a prediction result.
         """
         return self.metadata['label_legend_inverted'][str(labelIndex)]
 
 
     def getTopPrediction(self, predictionDict):
         """
-            DOCSTRING - utility method
+        Utility method to extract the top prediction, i.e. that with
+        the highest accuracy ("the category the input belongs to").
         """
         if len(predictionDict) == 0:
             return None
@@ -78,17 +81,29 @@ class AIModel:
 
 
     def _convertFloat(self, standardTypes, fVal):
+        """ Utility method to get rid of numpy numeric types."""
         return float(fVal) if standardTypes else fVal
 
 
     def predict(self, texts: List[str], standardTypes=True, echoInput=False):
         """
-            DOCSTRING
-            standardTypes is True for reduction to standard Python types
-            ( reason is numpy:
+        Classify a list of texts. The output has the format of a list
+            [
+                {
+                    "prediction": {
+                        label1: confidence1,
+                        ...
+                    }
+                  [ "input": input_text, ]
+                    "top": {"label": top_label, "value": top_value}
+                }
+            ]
+        If standardTypes = True (default), care is taken to convert all numbers
+        to ordinary Python types. This is because with numpy numbers one would
+        get an error trying to serialize the output as JSON:
               "TypeError: Object of type float32 is not JSON serializable"
-            )
-            if echoInput, attach the input text as well
+        if echoInput = True (default is False), the input text is also
+        passed back.
         """
         xInput = self.getPaddedSequencesFromTexts(texts)
         predictions = self.model.predict(xInput)
