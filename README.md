@@ -96,7 +96,7 @@ we have you covered. In this repository, you'll find everything you need for thi
 Don't forget to complete your assignment and get your **verified skill badge**:
 
 1. do all practice steps described below until you can query your API running in Gitpod.
-2. Now roll up your sleeves and modify the code as follows: TBD
+2. Now roll up your sleeves and modify the code as follows: add an endpoint that exposes the neural net configuration for the classifier model. [See below for detailed explanations!](#homework-detailed-instructions).
 3. Take a SCREENSHOT of requests/responses with the modified API. _Note: you will have to restart the API to see all changes!_
 4. Submit your homework [here](#).
 
@@ -178,7 +178,8 @@ explorer on the left, a file editor on the top
 > If you want to work on your laptop, make sure you install all Python
 > dependencies listed in `requirements.txt` (doing so in a Python virtual
 > environment is _strongly suggested_) and add the main repo root
-> to the `PYTHONPATH`.
+> to the `PYTHONPATH`. Also, please note that the model training phase may take
+> much longer than ten minutes, depending on your processing power.
 
 <details><summary>Show me a map of the Gitpod starting layout</summary>
 
@@ -504,6 +505,17 @@ That's it: the API correctly receives requests, uses the model to get
 predictions (i.e. spam/ham scores for each message), and returns
 them back to the caller.
 
+<details><summary>Show me what the output could look like</summary>
+
+**Note**: since training is a randomized process, the actual numbers you will
+obtain will not necessarily match what you see here. But you can expect
+a broad agreement, with the first text being seen as "spam" with at least 80%
+confidence and the second one being labeled "ham" at least as clearly.
+
+<img src="images/miniapi_requests.png.png?raw=true" />
+
+</details>
+
 #### Inspect the minimal API code
 
 What is running now is a basic API architecture, which makes use of just
@@ -606,22 +618,47 @@ that was requested and the identity of the caller.
 > such as `curl -s http://localhost:8000/recent_log | python -mjson.tool` and
 > examine their own recent calls.
 
-This may get large and we use STREAMING RESPONSE ... TODO
+The problem is, in principle this may be a huge list, and we do not necessarily
+want to have it all in memory on the API side before sending out a giant response
+to the caller. Especially considering the data from the database will be paginated
+(in a way that is handled automatically for us by the Cassandra drivers' object models).
 
-On the DB side, the underlying table ... TODO
+So what do we do here? It would be nice to start streaming out the API response
+as chunks of data arrive from the database ... and that is exactly what we do,
+with the `StreamingResponse` construct [provided by FastAPI](https://fastapi.tiangolo.com/advanced/custom-response/?h=streamingresponse#streamingresponse).
+
+The idea is very simple: we wrap something like a generator with `StreamingResponse` and FastAPI handles the rest.
+In this case, however, we want the full response to also be a valid JSON, so we do some tricks to ensure that
+(taking care of the opening/closing square brackets, to avoid a trailing comma at end of list, etc).
+In practice we craft the full JSON response semi-manually (see function `formatCallerLogJSON` for the gory details).
+
+For a look at the structure and contents of the database table with the call log data,
+and a short account on the reason for that choice, see below (section "Inspect the database").
 
 #### Support for a GET endpoint
 
-TODO
+For illustrative purposes, the API also has a GET endpoint for requesting
+(single-)text classification. A useful feature is that the `pydantic` models
+declared as endpoint dependencies will be filled with query
+parameters, if they are available and the names match. In this way, the
+GET endpoint will work, and will internally be able to use a `SingleTextQuery`,
+even when invoked as follows (try it!)
 
 ```
-curl -s "localhost:8000/prediction?text=This+is+a+nice+day&skip_cache=true&echo_input=1" | python -mjson.tool
+curl -s \
+    "localhost:8000/prediction?text=This+is+a+nice+day&skip_cache=true&echo_input=1" | python -mjson.tool
 ```
+
+(The way to have this mechanism working goes through the topic of dependency injection
+in FastAPI and in particular the "classes as dependencies" part. See
+[here](https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/?h=%20class%20depe#shortcut)
+for more details on this).
 
 ### Launch the full API
 
 Hit Ctrl-C in the API console (if you didn't already) and launch the following
-command this time:
+command this time (as we approach "production", we do not want the `--reload`
+flag any more:
 
 ```
 uvicorn api.main:app
@@ -666,49 +703,276 @@ But, if you re-launch the very same `curl` command (try it!), the response
 will have `"from_cache"` set to `true`: this is the caching mechanism at work.
 
 We could play a bit more with the API, but to do so, let us move to a friendlier
-interface, offered for free by FastAPI: Swagger.
+interface, offered for free by FastAPI: the Swagger UI.
 
 
 
 ## Use the API
 
-TODO
+#### Open the Swagger UI
 
-API Docs (`http://127.0.0.1:8000/docs`) and API testing.
+In principle, you _could_ access the Swagger UI by visiting `http://127.0.0.1:8000/docs`.
+If you are running locally that's the URL you should open, end of story.
 
-But actually for us ```echo `gp url 8000`/docs```, in new tab (we opened the port to outside btw)
+If you are working in Gitpod, however, the notion of "localhost" makes sense
+only within Gitpod itself. Luckily for you, Gitpod maps local ports to actual domain
+names (that can optionally be made publicly accessible as well).
 
-- have a look around the swagger
-- a couple of CURLs, in a sequence to illustrate caching
-- look at call logs requests at this point
-- keep an eye on cql console
+To find out the URL for your docs, then, run this command in the `bash` shell:
 
-Also check on Astra DB
+```
+echo `gp url 8000`/docs
+```
 
-- run the main api
-    keep an eye on CQL Console
-    swagger UI to play a bit (e.g. with the streaming + curl!), 
+and open the output URL in a new tab (it would look more or less
+like `https://8000-<something-something>.gitpod.io/docs`).
+You will see the Swagger UI: you can now browse the API documentation and even
+try the endpoints out.
+
+<details><summary>Show me the Swagger UI main page</summary>
+
+<img src="images/swagger_ui.png?raw=true" />
+
+</details>
+
+Take a moment to look around: look at the details for an endpoint and notice
+that schema description are provided for both the payload and the responses.
+
+#### Fun with caching
+
+Let's have some fun with the caching mechanism and the multiple-text endpoint.
+For this experiment we will borrow a few lines from a famous poem by T. S. Eliot.
+
+First locate the `/predictions` endpoint, expand it and click "Try it out"
+to access the interactive form. Edit the "Request Body" field pasting the
+following:
+
+```
+{
+  "texts": [
+    "I have seen them riding seaward on the waves",
+    "When the wind blows the water white and black."
+  ]
+}
+```
+
+Click the big "Execute" blue button and look for the "Response body" below.
+You will see that both lines are new to the classifier, indeed their `from_cache`
+returns `false`.
+
+Now add a third line and re-issue the request, with body
+```
+{
+  "texts": [
+    "I have seen them riding seaward on the waves",
+    "When the wind blows the water white and black.",
+    "By sea-girls wreathed with seaweed red and brown"
+  ]
+}
+```
+
+and check the response this time: the `from_cache` will have a `true-true-false`
+pattern this time. (You can also try adding `"skip_cache": true` to the body
+and see what happens to the response).
+
+Finally, reinstate all lines of the stanza (so far we only had the odd ones!):
+```
+{
+  "texts": [
+    "I have seen them riding seaward on the waves",
+    "Combing the white hair of the waves blown back",
+    "When the wind blows the water white and black.",
+    "We have lingered in the chambers of the sea",
+    "By sea-girls wreathed with seaweed red and brown",
+    "Till human voices wake us, and we drown."
+  ]
+}
+```
+
+How do the values of `from_cache` look like now? (well, no surprises here).
+
+Take a look at the cache-reading logic in the `multiple_text_predictions`
+function code in `main.py`. Sometimes it pays off to carefuly avoid wasting CPU
+cycles.
+
+#### Call log
+
+You can also try the `recent_log` endpoint in Swagger to have a (time-ordered)
+listing of all the classification requests you issued recently.
+
+As you saw earlier, behind the scenes this is a `StreamingResponse` and,
+instead of relying on FastAPI to package your response as JSON, you manually
+construct its pieces as the data arrives from the database.
+
+This is the reason why Swagger is unable to parse it as JSON even though
+it _is_ a valid JSON. You may want to go back to the `bash` console for this
+endpoint and check the result of:
+
+```
+curl -s localhost:8000/recent_log | python -mjson.tool
+```
+
+Surprise! Most likely you are not seeing your Eliot lines being listed,
+at least on Gitpod (but you may see the calls you issued earlier with `curl`).
+The reason is that requests coming from the Swagger UI pass through Gitpod's
+port and domain mappings and appear to come from a different IP than those
+from "the local localhost".
+
+You may want to verify this by comparing the `caller_id` returned by the
+Swagger invocation of the `/` endpoint and the result of
+`curl -s localhost:8000 | python -mjson.tool`.
+
+#### Inspect the database
+
+Let us now directly look at the contents of the tables on Astra DB. To do so,
+we will use the "CQL Console" that is available in the browser within the
+Astra UI.
+
+Choose your database in the Astra main dashboard and click on it;
+next, go to the "CQL Console" tab in the main panel. In a few seconds the
+console will open in your browser, already connected to your database and
+waiting for your input.
+
+<details><summary>Show me how to get to the CQL Console in Astra</summary>
+    <img src="images/astra_get_to_cql_console.gif?raw=true" />
+</details>
+
+> Commands entered in the CQL Console are terminated with a semicolon (`;`)
+> and can span multiple lines. Run them with the `Enter` key. If you want to
+> interrupt the command you are entering, hit `Ctrl-C` to be brought back
+> to the prompt. See [here](#) for more references to the CQL language commands.
+
+Start by telling the console that you will be using the `spamclassifier` keyspace:
+```
+USE spamclassifier;
+```
+
+Which tables are there?
+```
+DESC TABLES;
+```
+
+Let's see some sample records from the cache table:
+```
+SELECT * FROM spam_cache_items LIMIT 10;
+```
+
+And, similarly, let's look at the recent call log for the "localhost":
+```
+SELECT * FROM spam_calls_per_caller
+    WHERE caller_id = '127.0.0.1'
+    AND called_hour='2022-02-15 22:00:00.000Z';
+```
+> For the above to show results, you have to take care of adapting the
+> date and (whole) hour to current time, and possibly the `caller_id`
+> could be edited to reflect what you see from the Swagger `/` response.
+
+The reason why the call log is partitioned in hourly chunks (and not only
+per `caller_id`) has to do with the way the Cassandra database, on which Astra DB
+is built, works; unfortunately this topic would lead us too far away.
+If you are curious, we strongly recommend you start from the exercises [Data modeling by example](https://www.datastax.com/learn/data-modeling-by-example)
+and [What is Cassandra?](https://www.datastax.com/cassandra).
+You will embark on a long and exciting journey!
 
 
 ## Homework detailed instructions
 
-TODO
+We want a new GET endpoint in the API that takes no arguments and returns
+a description of how the neural net of the spam classifier model is structured.
 
-
-## Appendix: deploy behind a reverse proxy (nginx)
-
-TODO
-
-
-## Curls for the API (TEMP)
-
-(this should disappear as it goes to above sections)
+Luckily for us, the `tensorflow/keras` model (that gets loaded from disk within
+the `AIModel` class at startup) already has a `to_json()` method that returns
+a long JSON string similar to:
 
 ```
-curl -XPOST localhost:8000/prediction -d '{"text": "Bla"}' -H 'Content-Type: application/json' | python -mjson.tool
-curl -XPOST localhost:8000/prediction -d '{"text": "Bla", "skip_cache": true}' -H 'Content-Type: application/json' | python -mjson.tool
-
-
-curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "Mmmm, it seems a really top-notch place! The photos made me hungry..."]}' -H 'Content-Type: application/json' | python -mjson.tool
-curl -XPOST localhost:8000/predictions -d '{"texts": ["Click HERE for the chance to WIN A FREE ANVIL", "A new sentence!"], "echo_input": false}' -H 'Content-Type: application/json' | python -mjson.tool
+{
+    "class_name": "Sequential",
+    "config": {
+        "name": "sequential",
+        "layers": [
+            {
+                "class_name": "InputLayer",
+                "config": {
+                    "batch_input_shape": [
+                        null,
+                        300
+                    ],
+                    "dtype": "float32",
+    ...
+    ...
 ```
+
+Your task is to expose this JSON object to the user, who might legitimately be
+interested in what choice of network topology is the classifier based on.
+
+<details><summary>Show me how that could look like</summary>
+    <img src="images/neural_config.png?raw=true" />
+</details>
+
+
+### Appendix: deploy behind a reverse proxy (nginx)
+
+So far, we have been running the API with `uvicorn` from the command line.
+For a final deploy to production (on a Linux box), some last steps are missing.
+These are not covered in the practice of this interactive workshops, however
+we outline them here, assuming you are using `nginx` as reverse proxy,
+and you do have a domain name (but no HTTPS configured):
+
+**First** ensure your Python virtualenv, say `spamclassifier`, is available
+on the server.
+
+**Second** you will create a service file, `/etc/systemd/system/spamclassifier.service`,
+tasked with keeping the `uvicorn` instance running. Here we assume the service manager is `systemd`.
+
+```
+[Unit]
+Description= ...
+After=network.target
+
+[Service]
+User=...
+Group=...
+WorkingDirectory=/path/to/repo_dir
+# these may be here and override the .env
+Environment="API_NAME=Deployed Spam Classifier"
+ExecStart=/path/to/virtual/environments/spamclassifier/bin/uvicorn api.main:app --host 127.0.0.1 --port 9999 --workers 4
+
+[Install]
+WantedBy=multi-user.target
+```
+
+(`9999` is an internal port you may choose at will, but it must match the file below;
+`4` is the number of workers `uvicorn` will spawn
+and should be tuned to your predicted workload and the server capacity).
+
+**Third**, after starting the service (`sudo systemctl daemon-reload && sudo systemctl start spamclassifier`),
+make your API known to `nginx` by creating a file `/etc/nginx/sites-available/spamclassifier_api`:
+
+```
+server {
+    listen 80;
+    server_name api.myspamclassifier.com;
+
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        proxy_buffering off;
+        proxy_pass http://uvicorn_spamclassifier;
+    }
+}
+
+upstream uvicorn_spamclassifier {
+  server 127.0.0.1:9999;
+  keepalive 64;
+}
+```
+
+**Fourth**, create a symlink to the above file in `/etc/nginx/sites-available/` and restart `nginx`
+(`sudo systemctl restart nginx`).
+
+This should get the API running and accessible from outside. As mentioned earlier, to properly identify
+the `caller_id` at API level, your code should be modified to inspect the `X-Forwarded-For` header
+instead of the actual caller IP address. Access to request headers in FastAPI
+is described [here](https://fastapi.tiangolo.com/tutorial/header-params/#header-parameters).
