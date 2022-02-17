@@ -306,22 +306,22 @@ script.
 
 There are a couple of differences if you work locally (L) or on Gitpod (G):
 
+<img src="images/jupyter_on_gitpod_annotated.png?raw=true" />
+
 - Install jupyter in the virtual environment (`pip install jupyter==1.0.0`);
 - go to the `notebook` directory (`cd notebook`) in your console;
 - (G) start Jupyter with `jupyter notebook --no-browser --NotebookApp.allow_origin=\'$(gp url 8888)\'`: you'll see some output on console;
 - (G) There should be a small popup in Gitpod saying "a service is available on port 8888". Click "Open browser", then check your popup blocker to have the Jupyter UI open in a new tab. Alternatively:
-- (G) look for "Jupyter Notebook 6.4.8 is running at: http://localhost:8888/?token=084a430798a03750848062a7101487de54afb8a7ce7d32a5" at the beginning of the output, and take note of the URL given there;
-- (G) in the `bash` console, type `gp preview http://localhost:8888/?token=084a430798a03750848062a7101487de54afb8a7ce7d32a5` (replacing the URL with the one found above);
+- (G) look for `"Jupyter Notebook 6.4.8 is running at: http://localhost:8888/?token=<something>"` at the beginning of the output, and take note of the URL given there;
+- (G) in the `bash` console, type `gp preview http://localhost:8888/?token=<something>` (replacing the URL with the one found above);
 - (G) the mini-browser will not display the page correctly, so hit the "Open site in new window" button: the Jupyter UI should open in a new tab;
 - (L) start Jupyter with `jupyter notebook`: a browser window should open;
 - click on `prepareDataset.ipynb` to open it;
 - (G) do not worry about the "Not trusted" notice next to the title bar: the cells would run nevertheless;
-- you can now Shift-Enter to execute all cells. There are cells with the sole purpose of inspecting the contents of some variables: take your time, use them to better understand what's going on;
+- you can now Shift-Enter to execute all cells. **There are cells with the sole purpose of inspecting the contents of some variables**: take your time, use them to better understand what's going on;
 - when you are finished, choose "Close and Halt" from the notebook "File" menu;
 - now close main Jupyter the browser tab and stop the notebook backend that was running in the console (`Ctrl-C` + `y` for confirmation);
 - finally go back to the repo root with `cd ..` in the console.
-
-<img src="images/jupyter_on_gitpod_annotated.png?raw=true" />
 
 </details>
 
