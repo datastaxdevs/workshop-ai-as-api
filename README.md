@@ -1,5 +1,5 @@
 <!--- STARTEXCLUDE --->
-# AI as an API for beginners
+# AI as an API
 
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/datastaxdevs/workshop-ai-as-api)
 [![License Apache2](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
@@ -31,6 +31,21 @@ interactive workshop featuring
 
 
 
+## Table of contents
+
+
+1. [FAQ](#frequently-asked-questions)
+2. [Credits/Acknowledgements](#credits-and-acknowledgements)
+3. [Resources & Homework](#resources-and-homework)
+4. [Create your Astra DB instance](#create-and-setup-astra-db)
+5. [Load the project into Gitpod](#load-the-project-into-gitpod)
+6. [Train the model](#train-the-model)
+7. [Expose as API](#expose-as-api)
+8. [Use the API](#use-the-api)
+9. [Homework instructions](#homework-detailed-instructions)
+
+
+
 ## Frequently asked questions
 
 - *Can I run the workshop on my computer?*
@@ -55,9 +70,11 @@ interactive workshop featuring
 
 > Attending the session is not enough. You need to complete the homeworks detailed below and you will get a nice participation certificate a.k.a. badge.
 
-<details><summary>Show me the credits for this workshop</summary>
 
-### Credits
+
+## Credits and Acknowledgements
+
+<img src="images/coding_enterpreneurs.jpg?raw=true" width="100" align="right" />
 
 The core of this workshop is an adaptation from the excellent content ["AI as an API,"](https://www.youtube.com/watch?v=56qQNcHJxyQ)
 created by [CodingEntrepreneurs](https://www.youtube.com/channel/UCWEHue8kksIaktO8KTTN_zg).
@@ -73,11 +90,12 @@ and highlight some best practices for using databases such as Cassandra for stor
 
 So, all in all, you'd be better off by watching both contents!
 
-</details>
 
 
+## Resources and Homework
 
-## Materials for the Session
+
+### Materials for the Session
 
 It doesn't matter if you join our workshop live or you prefer to work at your own pace,
 we have you covered. In this repository, you'll find everything you need for this workshop:
@@ -88,8 +106,7 @@ we have you covered. In this repository, you'll find everything you need for thi
 - [Questions and Answers](https://community.datastax.com/)
 
 
-
-## Homework
+### Homework
 
 <img src="images/ai_as_api_badge.png?raw=true" width="200" align="right" />
 
@@ -106,15 +123,6 @@ That's it, you are done! Expect an email in a few days!
 
 
 # Let's start
-
-## Table of contents
-
-1. [Create your Astra DB instance](#create-and-setup-astra-db)
-2. [Load the project into Gitpod](#load-the-project-into-gitpod)
-3. [Train the model](#train-the-model)
-4. [Expose as API](#expose-as-api)
-5. [Use the API](#use-the-api)
-6. [Homework instructions](#homework-detailed-instructions)
 
 
 
