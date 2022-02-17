@@ -175,15 +175,16 @@ through Github in the process):
 In a few minutes, a full IDE will be ready in the browser, with a file
 explorer on the left, a file editor on the top
 (with this very README open for convenience), and a console (`bash`) below it.
-
-> _Note_: there will probably be "errors" related to mismatching versions
-> between the `tensorflow` package and others (notably `numpy`). You should
-> be able to ignore them and just go ahead.
+Actually two consoles will be spawned for later convenience, one called `api-shell`
+and the other simply `bash`.
 
 > If you want to work on your laptop, make sure you install all Python
 > dependencies listed in `requirements.txt` (doing so in a Python virtual
 > environment is _strongly suggested_) and add the main repo root
-> to the `PYTHONPATH`. If you are on Python 3.6, you will additionally need to
+> to the `PYTHONPATH`. (You might see "errors" related to mismatching versions
+> between the `tensorflow` package and others, notably `numpy`: you should
+> be able to ignore them and just go ahead.)
+> If you are on Python 3.6, you will additionally need to
 > install the `dataclasses` package (i.e. `pip install dataclasses`).
 > Also, please note that the model training phase may take
 > much longer than ten minutes, depending on your processing power.
@@ -272,6 +273,9 @@ Indeed this is all accomplished by launching the following script
 ```
 python prepareDataset.py -v
 ```
+**Note**: this script is also available as an **interactive Jupyter notebook**.
+You can refrain from running the above an see below for how to run the
+notebook (that achieves the same effect).
 
 (the `-v` stands for "verbose": you will see some sample values and
 various objects being printed as the script progresses, which will
@@ -289,9 +293,39 @@ directory. Two observations are in order:
 Try to have a look at the `pickle` file created by the `prepareDataset.py` script. Well,
 it's a binary file indeed, and there is not much to be seen there. Let's move along.
 
-**Note**: this step is also available as a Jupyter notebook for a more
-interactive experience. Unfortunately, at the moment this option is
-only available on local development (as opposed to Gitpod).
+#### Run as a Jupyter notebook
+
+If you want a more interactive experience, the dataset preparation step
+is also available as a notebook: this gives you the possibility to run
+the steps one at a time and explore the contents of the variables you create,
+to better understand the transformations that occur. The notebook, once executed,
+will result in the very same `pickle` file being created as the ordinary Python
+script.
+
+<details><summary>Show me the steps (alternative to invoking the script)</summary>
+
+There are a couple of differences if you work locally (L) or on Gitpod (G):
+
+- Install jupyter in the virtual environment (`pip install jupyter==1.0.0`);
+- go to the `notebook` directory (`cd notebook`) in your console;
+- (G) start Jupyter with `jupyter notebook --no-browser --NotebookApp.allow_origin=\'$(gp url 8888)\'`: you'll see some output on console;
+- (G) There should be a small popup in Gitpod saying "a service is available on port 8888". Click "Open browser", then check your popup blocker to have the Jupyter UI open in a new tab. Alternatively:
+- (G) look for "Jupyter Notebook 6.4.8 is running at: http://localhost:8888/?token=084a430798a03750848062a7101487de54afb8a7ce7d32a5" at the beginning of the output, and take note of the URL given there;
+- (G) in the `bash` console, type `gp preview http://localhost:8888/?token=084a430798a03750848062a7101487de54afb8a7ce7d32a5` (replacing the URL with the one found above);
+- (G) the mini-browser will not display the page correctly, so hit the "Open site in new window" button: the Jupyter UI should open in a new tab;
+- (L) start Jupyter with `jupyter notebook`: a browser window should open;
+- click on `prepareDataset.ipynb` to open it;
+- (G) do not worry about the "Not trusted" notice next to the title bar: the cells would run nevertheless;
+- you can now Shift-Enter to execute all cells. There are cells with the sole purpose of inspecting the contents of some variables: take your time, use them to better understand what's going on;
+- when you are finished, choose "Close and Halt" from the notebook "File" menu;
+- now close main Jupyter the browser tab and stop the notebook backend that was running in the console (`Ctrl-C` + `y` for confirmation);
+- finally go back to the repo root with `cd ..` in the console.
+
+<img src="images/jupyter_on_gitpod_annotated.png?raw=true" />
+
+</details>
+
+
 
 ### Train the model
 

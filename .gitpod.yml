@@ -3,7 +3,7 @@ tasks:
     before: |
       cd /workspace/NLP-classifier-API
       python -m pip install --upgrade pip
-      pip install -r requirements.txt
+      pip install -r requirements.txt 2>&1 > install.log
     command: |
       cd /workspace/NLP-classifier-API
       echo -e "\n\n\t\t** READY TO START... **\n\n"
