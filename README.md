@@ -100,8 +100,8 @@ So, all in all, you'd be better off by watching both contents!
 It doesn't matter if you join our workshop live or you prefer to work at your own pace,
 we have you covered. In this repository, you'll find everything you need for this workshop:
 
-- [Workshop Video](#)
-- [Slide deck](#)
+- [Workshop Video](https://www.youtube.com/watch?v=3LQBJP3JL6A)
+- [Slide deck](slides/AI-as-API-Python-FastAPI-text-classifier.pdf)
 - [Discord chat](https://dtsx.io/discord)
 - [Questions and Answers](https://community.datastax.com/)
 
