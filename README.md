@@ -273,9 +273,9 @@ Indeed this is all accomplished by launching the following script
 ```
 python prepareDataset.py -v
 ```
-**Note**: this script is also available as an **interactive Jupyter notebook**.
-You can refrain from running the above an see below for how to run the
-notebook (that achieves the same effect).
+> **Note**: this script is also available as an **interactive Jupyter notebook**.
+> You can refrain from running the above an see below for how to run the
+> notebook (that achieves the same effect).
 
 (the `-v` stands for "verbose": you will see some sample values and
 various objects being printed as the script progresses, which will

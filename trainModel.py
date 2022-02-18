@@ -59,7 +59,10 @@ if __name__ == '__main__':
     print('    Training (it will take some minutes) ... ', end ='')
     batchSize = 32
     epochs = 5
-    model.fit(X_train, y_train, validation_data=(X_test, y_test), batch_size=batchSize, verbose=1, epochs=epochs)
+    model.fit(X_train, y_train,
+              validation_data=(X_test, y_test),
+              batch_size=batchSize, verbose=1,
+              epochs=epochs)
     print('done')
 
     # Save the result (this involves three separate files)
