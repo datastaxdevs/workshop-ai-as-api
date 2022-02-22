@@ -17,8 +17,8 @@ class SpamCacheItem(Model):
     __table_name__ = 'spam_cache_items'
     __keyspace__ = ASTRA_DB_KEYSPACE
     __connection__ = 'my-astra-session'
-    model_version = columns.Text(primary_key=True, default=MODEL_VERSION)
-    input = columns.Text(primary_key=True)
+    model_version = columns.Text(primary_key=True, partition_key=True, default=MODEL_VERSION)
+    input = columns.Text(primary_key=True, partition_key=True)
     stored_at = columns.TimeUUID(default=uuid.uuid1)
     result = columns.Text()
     confidence = columns.Float()
