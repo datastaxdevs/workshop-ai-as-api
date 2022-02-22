@@ -137,9 +137,7 @@ for the API to be able to connect to it in a secure and authenticated way.
 
 _**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all - just push the button and get your cluster. No credit card required, $25.00 USD credit every month, roughly 20M read/write operations and 80GB storage monthly - sufficient to run small production workloads._
 
-## 🏂
-
-Start by Ctrl-clicking on this button (to open in a new tab)
+<img src="images/create_astra_db_button.png?raw=true" /> Start by Ctrl-clicking on this button (to open in a new tab)
 and then follow the instructions below:
 
 <a href="https://astra.dev/2-23"><img src="images/create_astra_db_button.png?raw=true" /></a>
