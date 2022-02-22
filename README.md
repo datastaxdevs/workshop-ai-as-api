@@ -166,7 +166,7 @@ The button below will:
 - clone this repository in it and open it in the IDE;
 - preinstall the required dependencies.
 
-**ctrl-click on the Gitpod button** to make sure you "Open in new tab"
+<img src="images/astranaut.png?raw=true" width="50" /> **ctrl-click on the Gitpod button** to make sure you "Open in new tab"
 (Note: you may have to authenticate
 through Github in the process):
 
@@ -265,7 +265,7 @@ More precisely:
 4. the "spam/ham" column of the input dataset is recast with the **"one-hot encoding"**: that is, it will become two columns, one for "spamminess" and one for "hamminess", both admitting the values zero or one (but with a single "one" per row): this turns out to be a formulation much friendlier to categorical classification tasks in general;
 5. finally you'll split the labeled dataset into a "training" and a "testing" disjoint parts. This is a very important concept: the effectiveness of a model should always be validated on data points **not used during training**.
 
-All these steps can be largely automated by using data-science Python packages
+<img src="images/astranaut.png?raw=true" width="50" /> All these steps can be largely automated by using data-science Python packages
 such as `pandas`, `numpy`, `tensorflow/keras`.
 Indeed this is all accomplished by launching the following script
 (which you should open and dissect line by line to learn more):
@@ -334,7 +334,7 @@ associating _a spam/ham label to a text message_.
 Well, actually the task is now more like "associating probabilities for 0/1 to a sequence
 of integer numbers (padded to fixed length with leading zeroes)".
 
-The code for creating and training the model is very short (a handful of lines of code,
+<img src="images/astranaut.png?raw=true" width="50" /> The code for creating and training the model is very short (a handful of lines of code,
 excluding loading from disk and writing to it), but running it will take several minutes:
 launch the script
 
@@ -393,7 +393,7 @@ the contents of `training/trained_model_v1`, and nothing else, you are able
 to perform meaningful estimates of the spam/ham status for a new arbitrary
 piece of text.
 
-The script `loadTestModel.py` does exactly that: it loads the saved model
+<img src="images/astranaut.png?raw=true" width="50" /> The script `loadTestModel.py` does exactly that: it loads the saved model
 and uses that to "predict" the ham/spam labels for new texts. Try it with
 
 ```
@@ -456,7 +456,7 @@ It's time to upload it to Gitpod.
 
 > If you work locally, skip the upload and just be aware of the path to it for what comes next in the `.env` file.
 
-Locate the file on your computer using the "finder/explorer".
+<img src="images/astranaut.png?raw=true" width="50" /> Locate the file on your computer using the "finder/explorer".
 Drag and drop the bundle into the Gitpod explorer window: _make sure you drop it on the
 file explorer window in Gitpod._
 
@@ -475,7 +475,7 @@ Now you must prepare a **dot-env file** containing the configuration
 required by the API (directory names, paths and, most important, the parameters
 to access the Astra DB persistence layer).
 
-Make a copy of the example environment file and open it in the editor with
+<img src="images/astranaut.png?raw=true" width="50" /> Make a copy of the example environment file and open it in the editor with
 
 ```
 cp .env.sample .env
@@ -485,7 +485,7 @@ gp open .env
 Most of the settings in this file are already filled for you (they will be
 picked up by the API as you start it).
 
-_Important:_ Make sure you paste your App ID and App Secret obtained earlier with the
+<img src="images/astranaut.png?raw=true" width="50" /> _Important:_ Make sure you paste your App ID and App Secret obtained earlier with the
 Astra DB Token in the `ASTRA_DB_CLIENT_ID` and `ASTRA_DB_CLIENT_SECRET` variables
 (keep the quotes and don't leave spaces around the equal sign).
 
@@ -505,7 +505,7 @@ uploaded to Gitpod, respectively.)
 
 ### Baby steps: a minimal API
 
-Now that the trained model is there, the `.env` file is ready and the
+<img src="images/astranaut.png?raw=true" width="50" /> Now that the trained model is there, the `.env` file is ready and the
 secure bundle is in place, you can start a minimal form of the API with:
 
 ```
@@ -535,7 +535,7 @@ the code is structured.
 You'll use the command-line tool `curl` to issue simple HTTP requests at your
 running API (but, of course, any tool capable of doing GETs and POSTs would do).
 
-While the API is running, switch to the other `bash` console in Gitpod (using
+<img src="images/astranaut.png?raw=true" width="50" /> While the API is running, switch to the other `bash` console in Gitpod (using
 the console switcher at the bottom right of your IDE) and try the following command:
 
 ```
@@ -557,7 +557,7 @@ code. `pydantic` pairs very well with FastAPI ([documentation](https://fastapi.t
 > Try again the above `curl` command to see the redefined environment
 > variable `API_NAME` taking precedence over the dot-env file.
 
-This minimal API already accomplishes the basic task for today: namely,
+<img src="images/astranaut.png?raw=true" width="50" /> This minimal API already accomplishes the basic task for today: namely,
 it makes the spam classifier available as an API. Let's try with some POST requests:
 
 ```
@@ -745,7 +745,7 @@ for more details on this).
 
 Without further ado, it is time to start the full-fledged API.
 
-Hit Ctrl-C in the API console (if you didn't already stop the "minimal API")
+<img src="images/astranaut.png?raw=true" width="50" /> Hit Ctrl-C in the API console (if you didn't already stop the "minimal API")
 and launch the following command this time (you're now closer to "production",
 so you do not want the `--reload` flag any more):
 
@@ -761,7 +761,7 @@ see something like `Uvicorn running on http://127.0.0.1:8000` being printed).
 > to the DB, most likely your Astra DB instance is currently hibernated. In that case, just open the CQL
 > Console on the Astra UI to bring your DB back to operation.
 
-Quickly launch a couple of requests with `curl` on the `bash` console
+<img src="images/astranaut.png?raw=true" width="50" /> Quickly launch a couple of requests with `curl` on the `bash` console
 (the same requests already sent to the minimal API earlier) and check the
 output:
 
@@ -781,7 +781,7 @@ you will be then able to read its `client` member to access the caller IP addres
 > header instead that has to be read within the Python code.
 > See [this](https://stackoverflow.com/questions/60098005/fastapi-starlette-get-client-real-ip) for more information.
 
-Now for an actual request to process some text:
+<img src="images/astranaut.png?raw=true" width="50" /> Now for an actual request to process some text:
 
 ```
 # single-text endpoint
@@ -812,7 +812,7 @@ If you are working in Gitpod, however, the notion of "localhost" makes sense
 only within Gitpod itself. Luckily for you, Gitpod maps local ports to actual domain
 names (that can optionally be made publicly accessible as well).
 
-To find out the URL for your docs, then, run this command in the `bash` shell:
+<img src="images/astranaut.png?raw=true" width="50" /> To find out the URL for your docs, then, run this command in the `bash` shell:
 
 ```
 echo `gp url 8000`/docs
@@ -837,7 +837,7 @@ that schema description are provided for both the payload and the responses.
 Let's have some fun with the caching mechanism and the multiple-text endpoint.
 For this experiment you will borrow a few lines from a famous poem by T. S. Eliot.
 
-First locate the `/predictions` endpoint, expand it and click "Try it out"
+<img src="images/astranaut.png?raw=true" width="50" /> First locate the `/predictions` endpoint, expand it and click "Try it out"
 to access the interactive form. Edit the "Request Body" field pasting the
 following:
 
@@ -900,7 +900,8 @@ construct its pieces as the data arrives from the database.
 
 This is the reason why Swagger is unable to parse it as JSON even though
 it _is_ a valid JSON (i.e. Swagger will display it as a unformatted big piece of text).
-You may want to go back to the `bash` console for this
+
+<img src="images/astranaut.png?raw=true" width="50" /> You may want to go back to the `bash` console for this
 endpoint and check the result of:
 
 ```
@@ -938,7 +939,7 @@ waiting for your input.
 > to the prompt. See [here](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlCommandsTOC.html)
 > for more references to the CQL language commands.
 
-Start by telling the console that you will be using the `spamclassifier` keyspace:
+<img src="images/astranaut.png?raw=true" width="50" /> Start by telling the console that you will be using the `spamclassifier` keyspace:
 ```
 USE spamclassifier;
 ```
