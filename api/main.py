@@ -228,8 +228,14 @@ def get_recent_calls_log(request: Request):
     Note: we do not actually use pydantic conversion in creating
     the response since it is streamed, but still we want to annotate
     this endpoint (e.g. for the docs) with 'response_model' above.
+
+    Note on how to pass a media type: see example at
+    https://fastapi.tiangolo.com/advanced/custom-response/#using-streamingresponse-with-file-like-objects
     """
     caller_id = request.client[0]
     called_hour = getThisHour()
     #
-    return StreamingResponse(formatCallerLogJSON(caller_id, called_hour))
+    return StreamingResponse(
+        formatCallerLogJSON(caller_id, called_hour),
+        media_type='application/json',
+    )
