@@ -269,10 +269,10 @@ More precisely:
 4. the "spam/ham" column of the input dataset is recast with the **"one-hot encoding"**: that is, it will become two columns, one for "spamminess" and one for "hamminess", both admitting the values zero or one (but with a single "one" per row): this turns out to be a formulation much friendlier to categorical classification tasks in general;
 5. finally you'll split the labeled dataset into a "training" and a "testing" disjoint parts. This is a very important concept: the effectiveness of a model should always be validated on data points **not used during training**.
 
-<img src="images/astranaut.png?raw=true" width="50" /> All these steps can be largely automated by using data-science Python packages
+All these steps can be largely automated by using data-science Python packages
 such as `pandas`, `numpy`, `tensorflow/keras`.
 
-The above steps can be accomplished by launching the following **Python script**
+<img src="images/astranaut.png?raw=true" width="50" /> The above steps can be accomplished by launching the following **Python script**
 (which you should open and dissect line by line to learn more):
 
 ```
