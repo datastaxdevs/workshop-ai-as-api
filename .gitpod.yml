@@ -1,11 +1,11 @@
 tasks:
   - name: api-shell
     before: |
-      cd /workspace/NLP-classifier-API
+      cd /workspace/workshop-ai-as-api
       python -m pip install --upgrade pip
       pip install -r requirements.txt 2>&1 > install.log
     command: |
-      cd /workspace/NLP-classifier-API
+      cd /workspace/workshop-ai-as-api
       echo -e "\n\n\t\t** READY TO START... **\n\n"
       gp open README.md
 github:
