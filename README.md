@@ -898,18 +898,18 @@ As you saw earlier, behind the scenes this is a `StreamingResponse` and,
 instead of relying on FastAPI to package your response as JSON, you manually
 construct its pieces as the data arrives from the database.
 
-This is the reason why Swagger is unable to parse it as JSON even though
-it _is_ a valid JSON (i.e. Swagger will display it as a unformatted big piece of text).
+<img src="images/astranaut.png?raw=true" width="50" /> Try the `/recent_log`
+endpoint in Swagger and check the output matches your previous experiments.
 
-<img src="images/astranaut.png?raw=true" width="50" /> You may want to go back to the `bash` console for this
-endpoint and check the result of:
+Go back, for this endpoint, to the `bash` consoleas well,
+and check the result of:
 
 ```
 curl -s localhost:8000/recent_log | python -mjson.tool
 ```
 
 Surprise! Most likely you are not seeing your Eliot lines being listed,
-at least on Gitpod (but you may see the calls you issued earlier with `curl`).
+at least not on Gitpod (but you may see the calls you issued earlier with `curl`).
 The reason is that requests coming from the Swagger UI pass through Gitpod's
 port and domain mappings and appear to come from a different IP than those
 from "the local localhost".
