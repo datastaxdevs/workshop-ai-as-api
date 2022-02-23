@@ -137,7 +137,7 @@ for the API to be able to connect to it in a secure and authenticated way.
 
 _**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all - just push the button and get your cluster. No credit card required, $25.00 USD credit every month, roughly 20M read/write operations and 80GB storage monthly - sufficient to run small production workloads._
 
-<img src="images/astranaut.png?raw=true" width="50" /> Start by Ctrl-clicking on this button (to open in a new tab)
+<img src="images/astranaut.png?raw=true" width="50" /> Start by Ctrl-clicking on the orange button (to open in a new tab)
 and then follow the instructions below:
 
 <a href="https://astra.dev/2-23"><img src="images/create_astra_db_button.png?raw=true" /></a>
@@ -249,6 +249,10 @@ jump to a specific line number.)
 
 ### Prepare the dataset for training
 
+> **Note**: this step can be run either as an **interactive Jupyter notebook**
+> or as **ordinary Python script**: the two will achieve the same effect.
+> See instructions below for starting and executing the notebook.
+
 You want to "teach" a machine to distinguish between spam and ham: unfortunately,
 machines prefer to speak numbers rather than words.
 You then need to transform the human-readable CSV file above into a format
@@ -267,15 +271,13 @@ More precisely:
 
 <img src="images/astranaut.png?raw=true" width="50" /> All these steps can be largely automated by using data-science Python packages
 such as `pandas`, `numpy`, `tensorflow/keras`.
-Indeed this is all accomplished by launching the following script
+
+The above steps can be accomplished by launching the following **Python script**
 (which you should open and dissect line by line to learn more):
 
 ```
 python prepareDataset.py -v
 ```
-> **Note**: this script is also available as an **interactive Jupyter notebook**.
-> You can refrain from running the above an see below for how to run the
-> notebook (that achieves the same effect).
 
 (the `-v` stands for "verbose": you will see some sample values and
 various objects being printed as the script progresses, which will
@@ -295,8 +297,8 @@ it's a binary file indeed, and there is not much to be seen there. Let's move al
 
 #### Run as a Jupyter notebook
 
-If you want a more interactive experience, the dataset preparation step
-is also available as a notebook: this gives you the possibility to run
+<img src="images/astranaut.png?raw=true" width="50" /> If you want a more interactive experience, the dataset preparation step
+is **also available as a notebook**: this gives you the possibility to run
 the steps one at a time and explore the contents of the variables you create,
 to better understand the transformations that occur. The notebook, once executed,
 will result in the very same `pickle` file being created as the ordinary Python
