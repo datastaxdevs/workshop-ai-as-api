@@ -924,7 +924,7 @@ You can also directly look at the contents of the tables on Astra DB. To do so,
 an option is to use the "CQL Console" that is available in the browser within the
 Astra UI.
 
-Choose your database in the Astra main dashboard and click on it;
+<img src="images/astranaut.png?raw=true" width="50" /> Choose your database in the Astra main dashboard and click on it;
 next, go to the "CQL Console" tab in the main panel. In a few seconds the
 console will open in your browser, already connected to your database and
 waiting for your input.
@@ -939,7 +939,7 @@ waiting for your input.
 > to the prompt. See [here](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlCommandsTOC.html)
 > for more references to the CQL language commands.
 
-<img src="images/astranaut.png?raw=true" width="50" /> Start by telling the console that you will be using the `spamclassifier` keyspace:
+Start by telling the console that you will be using the `spamclassifier` keyspace:
 ```
 USE spamclassifier;
 ```
