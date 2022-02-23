@@ -297,7 +297,7 @@ it's a binary file indeed, and there is not much to be seen there. Let's move al
 
 #### Run as a Jupyter notebook
 
-<img src="images/astranaut.png?raw=true" width="50" /> If you want a more interactive experience, the dataset preparation step
+<img src="images/astranaut.png?raw=true" width="50" /> If you want a more interactive experience, the dataset preparation
 is **also available as a notebook**: this gives you the possibility to run
 the steps one at a time and explore the contents of the variables you create,
 to better understand the transformations that occur. The notebook, once executed,
