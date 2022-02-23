@@ -1,4 +1,8 @@
 tasks:
+  - name: bash
+    command: |
+      cd /workspace/workshop-ai-as-api
+      echo -e "\n\n\t\t** READY TO START... **\n\n"
   - name: api-shell
     before: |
       cd /workspace/workshop-ai-as-api
@@ -8,10 +12,6 @@ tasks:
       cd /workspace/workshop-ai-as-api
       echo -e "\n\n\t\t** READY TO START... **\n\n"
       gp open README.md
-  - name: bash
-    command: |
-      cd /workspace/workshop-ai-as-api
-      echo -e "\n\n\t\t** READY TO START... **\n\n"
 github:
   prebuilds:
     master: true
