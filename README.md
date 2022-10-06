@@ -146,6 +146,12 @@ and then follow the instructions below:
 - generate and download a Secure Connect Bundle [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Download-the-secure-connect-bundle). You will later upload the bundle file to Gitpod;
 - generate and retrieve a DB Token [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-Astra-Token#c---procedure). **Important**: use the role "DB Administrator" for the token. You will later need the "Client ID" and "Client Secret" for this token.
 
+> **⚠️ Important**
+> ```
+> The instructor will show you on screen how to create a token 
+> but will have to destroy to token immediately for security reasons.
+> ```
+
 Moreover, keep the Astra DB dashboard open: it will be useful later.
 In particular you may find it convenient to have the CQL Console within reach
 (click on your database on the left sidebar, then locate the "CQL Console" tab
