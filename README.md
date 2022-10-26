@@ -476,9 +476,18 @@ available as environment variables:
 
 ```
 # TODO finalize this command!
-astra db create-dot-env workshops
+# astra db create-dot-env workshops
 # It will create .env with the DB variables and get the bundle
 # in a standard location + set its path here in the .env 
+
+# For the time being, replace it with the following instructions:
+
+astra db download-scb workshops -f secure-connect-workshops.zip
+echo "ASTRA_DB_SECURE_BUNDLE_PATH=\"$PWD/secure-connect-workshops.zip\"" > .env
+echo "ASTRA_DB_KEYSPACE=\"spamclassifier\"" >> .env
+
+# REPLACE YOUR "AstraCS:..." TOKEN IN THE FOLLOWING
+echo "ASTRA_DB_APPLICATION_TOKEN=\"AstraCS:...\"" >> .env
 ```
 
 <img src="images/astranaut.png?raw=true" width="50" /> Let us add to this file a couple of settings specific to our API:
