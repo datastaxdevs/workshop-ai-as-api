@@ -247,9 +247,10 @@ jump to a specific line number.)
 
 ### Prepare the dataset for training
 
-> **Note**: this step can be run either as an **interactive Jupyter notebook**
-> or as **ordinary Python script**: the two will achieve the same effect.
-> See instructions below for starting and executing the notebook.
+> **Note**: this step is meant to run as an **interactive Jupyter notebook**.
+> In case you run into trouble with Jupyter, you can equivalently
+> just run the command `python prepareDataset.py -v` and watch the
+> show (`-v` stands for "verbose", to catch a glimpse at what it does).
 
 You want to "teach" a machine to distinguish between spam and ham: unfortunately,
 machines prefer to speak numbers rather than words.
@@ -270,16 +271,28 @@ More precisely:
 All these steps can be largely automated by using data-science Python packages
 such as `pandas`, `numpy`, `tensorflow/keras`.
 
-<img src="images/astranaut.png?raw=true" width="50" /> The above steps can be accomplished by launching the following **Python script**
-(which you should open and dissect line by line to learn more):
+The above steps are accomplished by running a **Jupyter interactive notebook**
+(which you should inspect closely to learn more)
+as follows.
+In this way, you can run the steps one at a time and explore the contents
+of the variables you create, for a better understanding of the transformations
+being applied to the data.
+
+<img src="images/astranaut.png?raw=true" width="50" /> In the Gitpod environment, we started Jupyter for you (it is running in the `notebook-shell` console).
+To open it, run the following command, which will open the domain corresponding, in Gitpod, to the local port
+with the notebook server listening:
 
 ```
-python prepareDataset.py -v
+gp preview --external `gp url 8888`
 ```
 
-(the `-v` stands for "verbose": you will see some sample values and
-various objects being printed as the script progresses, which will
-shed more light on what kind of transformations exactly are taking place).
+Now, **CHECK YOUR POPUP BLOCKER** to open the tab with the notebook.
+
+> The password to unlock the notebooks is `spamclassifier`.
+
+Once the notebook is available, navigate to the `notebook` directory and click on `prepareDataset.ipynb` to open it (in yet another tab).
+
+Run one cell at a time, in sequence, by selecting it and hitting `Shift-Enter`. **There are cells with the sole purpose of inspecting the contents of some variables**: take your time, use them to better understand what's going on.
 
 > _Note_: don't worry if you see a message such as `Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory`. It just means that this environment lacks the CUDA libraries, hence most Tensorflow tasks will be considerably slower than on a GPU. If you work on your laptop, you may want to switch to using a GPU for the training task, if you have the option to do so.
 
@@ -293,39 +306,11 @@ directory. Two observations are in order:
 Try to have a look at the `pickle` file created by the `prepareDataset.py` script. Well,
 it's a binary file indeed, and there is not much to be seen there. Let's move along.
 
-#### Run as a Jupyter notebook
+When you are finished, choose "Close and Halt" from the notebook "File" menu;
 
-<img src="images/astranaut.png?raw=true" width="50" /> If you want a more interactive experience, the dataset preparation
-is **also available as a notebook**: this gives you the possibility to run
-the steps one at a time and explore the contents of the variables you create,
-to better understand the transformations that occur. The notebook, once executed,
-will result in the very same `pickle` file being created as the ordinary Python
-script.
+At the end, close main Jupyter the browser tab and stop the notebook backend that was running in the console (`Ctrl-C` + `y` for confirmation);
 
-<details><summary>Show me the steps (alternative to invoking the script)</summary>
-
-There are a couple of differences if you work locally (L) or on Gitpod (G):
-
-<img src="images/jupyter_on_gitpod_annotated.png?raw=true" />
-
-- Install jupyter in the virtual environment (`pip install jupyter==1.0.0`);
-- go to the `notebook` directory (`cd notebook`) in your console;
-- (G) start Jupyter with `jupyter notebook --no-browser --NotebookApp.allow_origin=\'$(gp url 8888)\'`: you'll see some output on console;
-- (G) There should be a small popup in Gitpod saying "a service is available on port 8888". Click "Open browser", then check your popup blocker to have the Jupyter UI open in a new tab. Alternatively:
-- (G) look for `"Jupyter Notebook 6.4.8 is running at: http://localhost:8888/?token=<something>"` at the beginning of the output, and take note of the URL given there;
-- (G) in the `bash` console, type `gp preview http://localhost:8888/?token=<something>` (replacing the URL with the one found above);
-- (G) the mini-browser will not display the page correctly, so hit the "Open site in new window" button: the Jupyter UI should open in a new tab;
-- (L) start Jupyter with `jupyter notebook`: a browser window should open;
-- click on `prepareDataset.ipynb` to open it;
-- (G) do not worry about the "Not trusted" notice next to the title bar: the cells would run nevertheless;
-- you can now Shift-Enter to execute all cells. **There are cells with the sole purpose of inspecting the contents of some variables**: take your time, use them to better understand what's going on;
-- when you are finished, choose "Close and Halt" from the notebook "File" menu;
-- now close main Jupyter the browser tab and stop the notebook backend that was running in the console (`Ctrl-C` + `y` for confirmation);
-- finally go back to the repo root with `cd ..` in the console.
-
-</details>
-
-
+> If you are running **on your local machine**, simply run `jupyter notebook` in a terminal window and the main Jupyter browser tab should open already for you.
 
 ### Train the model
 

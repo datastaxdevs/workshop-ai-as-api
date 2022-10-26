@@ -1,20 +1,4 @@
 tasks:
-  - name: work-shell
-    before: |
-      curl -Ls "https://dtsx.io/get-astra-cli" | bash
-      . ~/.bashrc
-    command: |
-      cd /workspace/workshop-ai-as-api
-      clear
-      echo -e "\n\n\t\t** READY TO START... **\n\n"
-  - name: curl-shell
-    before: |
-      cd /workspace/workshop-ai-as-api
-    command: |
-      cd /workspace/workshop-ai-as-api
-      clear
-      echo -e "\n\n\t\t** READY TO START... **\n\n"
-      gp open README.md
   - name: notebook-shell
     before: |
       cd /workspace/workshop-ai-as-api
@@ -29,6 +13,22 @@ tasks:
     command: |
       cd /workspace/workshop-ai-as-api
       jupyter notebook --no-browser --NotebookApp.password='sha1:4964484fac7e:73ca028097aae542f45628a09b3da9c6e4168f6f'
+  - name: curl-shell
+    before: |
+      cd /workspace/workshop-ai-as-api
+    command: |
+      cd /workspace/workshop-ai-as-api
+      clear
+      echo -e "\n\n\t\t** READY TO START... **\n\n"
+      gp open README.md
+  - name: work-shell
+    before: |
+      curl -Ls "https://dtsx.io/get-astra-cli" | bash
+      . ~/.bashrc
+    command: |
+      cd /workspace/workshop-ai-as-api
+      clear
+      echo -e "\n\n\t\t** READY TO START... **\n\n"
 github:
   prebuilds:
     master: true
