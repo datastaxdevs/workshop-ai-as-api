@@ -1,4 +1,3 @@
-<!--- STARTEXCLUDE --->
 # AI as an API
 
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/datastaxdevs/workshop-ai-as-api)
@@ -14,7 +13,6 @@ interactive workshop featuring
 * FastAPI, the high-performance Python framework for creating APIs
 * lots of useful Python libraries and packages (`pandas`, `pydantic`, `dotenv`, `sklearn`, `uvicorn`, ...)
 
-<!--- ENDEXCLUDE --->
 
 ![Workshop cover](images/nlp-classifier-api-cover.png)
 
@@ -142,9 +140,9 @@ and then follow the instructions below:
 
 <a href="https://astra.dev/2-23"><img src="images/create_astra_db_button.png?raw=true" /></a>
 
-- create an Astra DB instance [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-AstraDB-Instance), with database name = `workshops` and keyspace = `spamclassifier`;
-- generate and download a Secure Connect Bundle [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Download-the-secure-connect-bundle). You will later upload the bundle file to Gitpod;
-- generate and retrieve a DB Token [as explained here](https://github.com/datastaxdevs/awesome-astra/wiki/Create-an-Astra-Token#c---procedure). **Important**: use the role "DB Administrator" for the token. You will later need the "Client ID" and "Client Secret" for this token.
+- create an Astra DB instance [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-instance/), in the GCP cloud provider, with database name = `workshops` and keyspace = `spamclassifier`.;
+- generate and download a Secure Connect Bundle [as explained here](https://awesome-astra.github.io/docs/pages/astra/download-scb/). You will later upload the bundle file to Gitpod;
+- generate and retrieve a DB Token [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-token/). **Important**: use the role "DB Administrator" for the token. You will later need the "Client ID" and "Client Secret" for this token.
 
 > **⚠️ Important**
 > ```
