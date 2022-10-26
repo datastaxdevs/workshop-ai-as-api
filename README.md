@@ -273,7 +273,7 @@ such as `pandas`, `numpy`, `tensorflow/keras`.
 
 The above steps are accomplished by running a **Jupyter interactive notebook**
 (which you should inspect closely to learn more)
-as follows.
+as described below.
 In this way, you can run the steps one at a time and explore the contents
 of the variables you create, for a better understanding of the transformations
 being applied to the data.
@@ -286,7 +286,7 @@ with the notebook server listening:
 gp preview --external `gp url 8888`
 ```
 
-Now, **CHECK YOUR POPUP BLOCKER** to open the tab with the notebook.
+Now, **CHECK YOUR POPUP BLOCKER** to let the tab with the notebook get through.
 
 > The password to unlock the notebooks is `spamclassifier`.
 
