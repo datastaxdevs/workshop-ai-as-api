@@ -171,8 +171,10 @@ through Github in the process):
 In a few minutes, a full IDE will be ready in the browser, with a file
 explorer on the left, a file editor on the top
 (with this very README open for convenience), and a console (`bash`) below it.
-Actually two consoles will be spawned for later convenience, one called `api-shell`
-and the other simply `bash`.
+Actually three consoles will be spawned for later convenience, called
+`work-shell` (where the main work is done including running the API),
+`curl-shell` (to later issue `curl` commands to the API),
+and `notebook-shell` (where Jupyter will keep running).
 
 > If you want to work on your laptop, make sure you install all Python
 > dependencies listed in `requirements.txt` (doing so in a Python virtual
