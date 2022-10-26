@@ -1,7 +1,7 @@
 """ db.py """
 
 import os
-import pathlib
+# import pathlib
 from dotenv import load_dotenv
 
 from cassandra.cluster import Cluster
@@ -12,11 +12,15 @@ from cassandra.cqlengine import connection
 load_dotenv()
 
 ASTRA_DB_KEYSPACE = os.environ['ASTRA_DB_KEYSPACE']
-ASTRA_DB_CLIENT_SECRET = os.environ['ASTRA_DB_CLIENT_SECRET']
-ASTRA_DB_CLIENT_ID = os.environ['ASTRA_DB_CLIENT_ID']
-ASTRA_DB_BUNDLE_PATH = os.environ['ASTRA_DB_BUNDLE_PATH']
-DB_MODULE_DIR = pathlib.Path(__file__).resolve().parent
-CLUSTER_BUNDLE = str(DB_MODULE_DIR.parent.parent / ASTRA_DB_BUNDLE_PATH)
+ASTRA_DB_SECURE_BUNDLE_PATH = os.environ['ASTRA_DB_SECURE_BUNDLE_PATH']
+ASTRA_DB_APPLICATION_TOKEN = os.environ['ASTRA_DB_APPLICATION_TOKEN']
+
+
+# ASTRA_DB_CLIENT_SECRET = os.environ['ASTRA_DB_CLIENT_SECRET']
+# ASTRA_DB_CLIENT_ID = os.environ['ASTRA_DB_CLIENT_ID']
+# ASTRA_DB_BUNDLE_PATH = os.environ['ASTRA_DB_BUNDLE_PATH']
+# DB_MODULE_DIR = pathlib.Path(__file__).resolve().parent
+# CLUSTER_BUNDLE = str(DB_MODULE_DIR.parent.parent / ASTRA_DB_BUNDLE_PATH)
 
 
 def getCluster():
@@ -25,9 +29,9 @@ def getCluster():
     Uses the secure-connect-bundle and the connection secrets.
     """
     cloud_config= {
-        'secure_connect_bundle': CLUSTER_BUNDLE
+        'secure_connect_bundle': ASTRA_DB_SECURE_BUNDLE_PATH
     }
-    auth_provider = PlainTextAuthProvider(ASTRA_DB_CLIENT_ID, ASTRA_DB_CLIENT_SECRET)
+    auth_provider = PlainTextAuthProvider('token', ASTRA_DB_APPLICATION_TOKEN)
     return Cluster(cloud=cloud_config, auth_provider=auth_provider)
     
 

@@ -130,8 +130,8 @@ You will now create a database with a keyspace in it (a _keyspace_ can contain _
 The API needs a couple of tables for persistent storage: they will be created programmatically on startup
 if they don't exist, so there's no need to worry too much about them.
 
-Besides creating the database, you need to retrieve a couple of codes and assets
-for the API to be able to connect to it in a secure and authenticated way.
+Besides creating the database, you need to retrieve a "Token", that is,
+a set of credentials used later to connect to it in a secure and authenticated way.
 
 _**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all - just push the button and get your cluster. No credit card required, $25.00 USD credit every month, roughly 20M read/write operations and 80GB storage monthly - sufficient to run small production workloads._
 
@@ -141,21 +141,13 @@ and then follow the instructions below:
 <a href="https://astra.dev/2-23"><img src="images/create_astra_db_button.png?raw=true" /></a>
 
 - create an Astra DB instance [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-instance/), in the GCP cloud provider, with database name = `workshops` and keyspace = `spamclassifier`.;
-- generate and download a Secure Connect Bundle [as explained here](https://awesome-astra.github.io/docs/pages/astra/download-scb/). You will later upload the bundle file to Gitpod;
-- generate and retrieve a DB Token [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-token/). **Important**: use the role "DB Administrator" for the token. You will later need the "Client ID" and "Client Secret" for this token.
+- generate and retrieve a DB Token [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-token/). **Important**: use the role "DB Administrator" for the token. Save the token in a secure place for later use. _Note: the token auto-generated while creating the database has not enough permissions for our purposes today, you can disregard it._
 
 > **⚠️ Important**
 > ```
-> The instructor will show you on screen how to create a token 
-> but will have to destroy to token immediately for security reasons.
+> The instructor will show the token creation on screen,
+> but will then have to destroy it immediately for security reasons.
 > ```
-
-Moreover, keep the Astra DB dashboard open: it will be useful later.
-In particular you may find it convenient to have the CQL Console within reach
-(click on your database on the left sidebar, then locate the "CQL Console" tab
-in the main panel).
-
-
 
 ## Load the project into Gitpod
 
@@ -374,9 +366,15 @@ through the input dataset. Several metrics are printed during training:
 </details>
 
 Perhaps by now the training process is completed and everything has been
-saved in the `training/trained_model_v1` directory (_Note_: it's advisable to keep a version
-number in the model to be able to seamlessly switch to a newer classifier, or even
-hypothetically to expose several of them at once in a single API).
+saved in the `training/trained_model_v1` directory.
+
+> **Note**: it's advisable to keep a version
+> number in the model to be able to seamlessly switch to a newer classifier, or even
+> hypothetically to expose several of them at once in a single API.
+> _This aspect, and its implications in how to design the API, is examined
+> in more detail in the example found at
+> [hemidactylus/mlops-speedrun-spamclassifier](https://github.com/hemidactylus/mlops-speedrun-spamclassifier),
+> which builds from the one you are reading.
 
 Take a look in the output directory: there should be
 
@@ -457,48 +455,46 @@ with more endpoints and a database-backed caching layer.
 
 ### Configure dot-env and DB connect bundle
 
-Remember the "Secure Connect Bundle" you downloaded earlier from the Astra DB UI?
-It's time to upload it to Gitpod.
+Now you need to prepare a configuration file to give the API all required
+parameters to connect to the database. Fortunately, the Astra CLI has you
+covered and will automate most of it for you: all you need is to run a couple
+of commands.
 
-> If you work locally, skip the upload and just be aware of the path to it for what comes next in the `.env` file.
-
-<img src="images/astranaut.png?raw=true" width="50" /> Locate the file on your computer using the "finder/explorer".
-Drag and drop the bundle into the Gitpod explorer window: _make sure you drop it on the
-file explorer window in Gitpod._
-
-<details><summary>Show me how to drag-and-drop the bundle to Gitpod</summary>
-    <img src="images/gitpod_uploading_bundle_1_annotated.png?raw=true" />
-</details>
-
-As a check, you may want to verify the file is available in the right location with:
-
-    ls -lh secure-connect-*.zip
-
-The output should tell you the exact file name (you can also make sure the
-file size is around 12KB while you are at it).
-
-Now you must prepare a **dot-env file** containing the configuration
-required by the API (directory names, paths and, most important, the parameters
-to access the Astra DB persistence layer).
-
-<img src="images/astranaut.png?raw=true" width="50" /> Make a copy of the example environment file and open it in the editor with
+<img src="images/astranaut.png?raw=true" width="50" /> First, configure the Astra CLI so that it knows the "token" part
+of your DB Admin Token (i.e. the string starting with `AstraCS:...`):
 
 ```
-cp .env.sample .env
-gp open .env
+. ~/.bashrc
+astra setup
 ```
 
-Most of the settings in this file are already filled for you (they will be
-picked up by the API as you start it).
+You can test that everything works by inspecting your database:
 
-<img src="images/astranaut.png?raw=true" width="50" /> _Important:_ Make sure you paste your App ID and App Secret obtained earlier with the
-Astra DB Token in the `ASTRA_DB_CLIENT_ID` and `ASTRA_DB_CLIENT_SECRET` variables
-(keep the quotes and don't leave spaces around the equal sign).
+```
+astra db get workshops
+```
 
-As for the `ASTRA_DB_KEYSPACE` and `ASTRA_DB_BUNDLE_PATH` settings, you probably
-don't need to worry (they must match the keyspace you created earlier in the
-database and the location and file name of the Secure Connect Bundle you just
-uploaded to Gitpod, respectively.)
+<img src="images/astranaut.png?raw=true" width="50" /> At this point you can have the CLI prepare a `.env` file with all required
+connection information (keyspace name, access token, location of the
+[secure connect bundle](https://awesome-astra.github.io/docs/pages/astra/download-scb/))
+available as environment variables:
+
+```
+# TODO finalize this command!
+astra db create-dot-env workshops
+# It will create .env with the DB variables and get the bundle
+# in a standard location + set its path here in the .env 
+```
+
+<img src="images/astranaut.png?raw=true" width="50" /> Let us add to this file a couple of settings specific to our API:
+
+```
+cat .app-env.sample >> .env
+```
+
+At this point, the `.env` file should be OK. If you are curious, have a look
+at what's in it: there will be keyspace name, connection secrets, API
+settings and so on.
 
 <details><summary>Show me what the dot-env file might look like</summary>
     <img src="images/dot-env.png?raw=true" />
@@ -926,46 +922,60 @@ Swagger invocation of the `/` endpoint and the result of
 
 #### Inspect the database
 
-You can also directly look at the contents of the tables on Astra DB. To do so,
-an option is to use the "CQL Console" that is available in the browser within the
-Astra UI.
+<img src="images/astranaut.png?raw=true" width="50" /> You can also
+directly look at the contents of the tables on Astra DB. To do so,
+incoke the Astra CLI to open a `cqlsh` console connected to the database:
 
-<img src="images/astranaut.png?raw=true" width="50" /> Choose your database in the Astra main dashboard and click on it;
+```
+astra db cqlsh workshops
+```
+
+<details><summary>Click for an alternative way: the CQL Web Console in Astra</summary>
+
+A Web-based CQL Console is available in the browser within the Astra UI as well.
+
+Choose your database in the Astra main dashboard and click on it;
 next, go to the "CQL Console" tab in the main panel. In a few seconds the
 console will open in your browser, already connected to your database and
 waiting for your input.
 
-<details><summary>Show me how to get to the CQL Console in Astra</summary>
-    <img src="images/astra_get_to_cql_console.gif?raw=true" />
+<img src="images/astra_get_to_cql_console.gif?raw=true" />
+
 </details>
 
 > Commands entered in the CQL Console are terminated with a semicolon (`;`)
 > and can span multiple lines. Run them with the `Enter` key. If you want to
 > interrupt the command you are entering, hit `Ctrl-C` to be brought back
-> to the prompt. See [here](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlCommandsTOC.html)
+> to the prompt. To leave `cqlsh`, use the `EXIT` command.
+> See [here](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlCommandsTOC.html)
 > for more references to the CQL language commands.
 
 Start by telling the console that you will be using the `spamclassifier` keyspace:
+
 ```
 USE spamclassifier;
 ```
 
 Which tables are there?
+
 ```
 DESC TABLES;
 ```
 
 List some sample records from the cache table:
+
 ```
 SELECT * FROM spam_cache_items LIMIT 10;
 ```
 
 And, similarly, look at the recent call log for the "localhost" caller:
+
 ```
 SELECT * FROM spam_calls_per_caller
     WHERE caller_id = '127.0.0.1'
     AND called_hour='2022-02-23 17:00:00.000Z';
 ```
+
 > For the above to show results, you have to take care of adapting the
 > date and (whole) hour to current time, and possibly the `caller_id`
 > could be edited to reflect what you see from the Swagger `/` response.

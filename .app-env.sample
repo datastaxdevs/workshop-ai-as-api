@@ -1,15 +1,10 @@
+
 # API settings
 API_NAME="Spam Classifier"
 
 # Classifier parameters
 MODEL_VERSION="v1"
 MODEL_DIRECTORY="training/trained_model_v1"
-
-# Database access parameters
-ASTRA_DB_KEYSPACE="spamclassifier"
-ASTRA_DB_BUNDLE_PATH="secure-connect-workshops.zip"
-ASTRA_DB_CLIENT_ID="xFc [...] HGi"
-ASTRA_DB_CLIENT_SECRET="uZYtd [...] x2bHo7"
 
 # the line below should not be changed
 CQLENG_ALLOW_SCHEMA_MANAGEMENT="1"

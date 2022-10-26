@@ -13,17 +13,15 @@ class Settings(BaseSettings):
     model_directory: str = Field(..., env='MODEL_DIRECTORY')
     #
     astra_db_keyspace: str = Field(..., env='ASTRA_DB_KEYSPACE')
-    astra_db_bundle_path: str = Field(..., env='ASTRA_DB_BUNDLE_PATH')
-    astra_db_client_secret: str = Field(..., env='ASTRA_DB_CLIENT_SECRET')
-    astra_db_client_id: str = Field(..., env='ASTRA_DB_CLIENT_ID')
+    astra_db_secure_bundle_path: str = Field(..., env='ASTRA_DB_SECURE_BUNDLE_PATH')
+    astra_db_application_token: str = Field(..., env='ASTRA_DB_APPLICATION_TOKEN')
 
     # this trick is redundant once we enforce a restricted Pydantic schema
     # on the route response, but ...
     # (see https://fastapi.tiangolo.com/tutorial/response-model/#add-an-output-model)
     secret_fields = {
-        'astra_db_bundle_path',
-        'astra_db_client_secret',
-        'astra_db_client_id',
+        'astra_db_secure_bundle_path',
+        'astra_db_application_token',
         'secret_fields',
     }
 
@@ -39,3 +37,4 @@ class Settings(BaseSettings):
 @lru_cache()
 def getSettings():
     return Settings()
+

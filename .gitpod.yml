@@ -1,7 +1,11 @@
 tasks:
   - name: bash
+    before: |
+      curl -Ls "https://dtsx.io/get-astra-cli" | bash
+      . ~/.bashrc
     command: |
       cd /workspace/workshop-ai-as-api
+      clear
       echo -e "\n\n\t\t** READY TO START... **\n\n"
   - name: api-shell
     before: |
@@ -10,6 +14,7 @@ tasks:
       pip install -r requirements.txt 2>&1 > install.log
     command: |
       cd /workspace/workshop-ai-as-api
+      clear
       echo -e "\n\n\t\t** READY TO START... **\n\n"
       gp open README.md
 github:
