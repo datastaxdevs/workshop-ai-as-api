@@ -340,7 +340,7 @@ launch the script
 python trainModel.py
 ```
 
-and wait for it to finish (it will take probably twelve minutes or so on Gitpod,
+and wait for it to finish (it will take probably eight minutes or so on Gitpod,
 possibly more on your own computer, depending on the specs).
 
 The training script works as follows:
@@ -453,7 +453,7 @@ taste of how FastAPI works, and then turn to a full-fledged version,
 with more endpoints and a database-backed caching layer.
 
 
-### Configure dot-env and DB connect bundle
+### Configure dot-env file
 
 Now you need to prepare a configuration file to give the API all required
 parameters to connect to the database. Fortunately, the Astra CLI has you
@@ -468,11 +468,19 @@ of your DB Admin Token (i.e. the string starting with `AstraCS:...`):
 astra setup
 ```
 
+<details><summary>Show me the setup step</summary>
+    <img src="images/astra-setup-token.png?raw=true" />
+</details>
+
 You can test that everything works by inspecting your database:
 
 ```
 astra db get workshops
 ```
+
+<details><summary>Show me a typical output</summary>
+    <img src="images/astra-db-get.png?raw=true" />
+</details>
 
 <img src="images/astranaut.png?raw=true" width="50" /> At this point you can have the CLI prepare a `.env` file with all required
 connection information (keyspace name, access token, location of the
@@ -497,7 +505,7 @@ at what's in it: there will be keyspace name, connection secrets, API
 settings and so on.
 
 <details><summary>Show me what the dot-env file might look like</summary>
-    <img src="images/dot-env.png?raw=true" />
+    <img src="images/dot-env-2.png?raw=true" />
 </details>
 
 > If you don't have (or don't want to use) the actual trained model at hand,
@@ -924,9 +932,10 @@ Swagger invocation of the `/` endpoint and the result of
 
 <img src="images/astranaut.png?raw=true" width="50" /> You can also
 directly look at the contents of the tables on Astra DB. To do so,
-incoke the Astra CLI to open a `cqlsh` console connected to the database:
+invoke the Astra CLI to open a `cqlsh` console connected to the database:
 
 ```
+. ~/.bashrc
 astra db cqlsh workshops
 ```
 
@@ -1024,7 +1033,7 @@ interested in what choice of network topology is the classifier based on.
 </details>
 
 
-### Appendix: deploy behind a reverse proxy (nginx)
+### Appendix I: deploy behind a reverse proxy (nginx)
 
 So far, you've been running the API with `uvicorn` from the command line.
 For a final deploy to production (on a Linux box), some last steps are missing.
@@ -1091,3 +1100,16 @@ This should get the API running and accessible from outside. As mentioned earlie
 the `caller_id` at API level, your code should be modified to inspect the `X-Forwarded-For` header
 instead of the actual caller IP address. Access to request headers in FastAPI
 is described [here](https://fastapi.tiangolo.com/tutorial/header-params/#header-parameters).
+
+### Appendix II: model versioning with FastAPI
+
+It is a standard requirement in production-grade ML to have several versions
+of a model, which possibly have to be exposed at the same time by the API.
+Of course, in that case a clear labeling of the endpoints
+(e.g. `/v1/predict` vs. `/v2/predict`) is essential to avoid messing up!
+
+This topic is not examined in detail here, but if you want to know more
+you are encouraged to look at the
+[hemidactylus/mlops-speedrun-spamclassifier](https://github.com/hemidactylus/mlops-speedrun-spamclassifier)
+repository, which shows a possible way to build re-usable standardized routes
+which can be attached to different models in a single API.
