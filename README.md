@@ -459,6 +459,10 @@ astra setup
     <img src="images/astra-setup-token.png?raw=true" />
 </details>
 
+> If you get a "command not found" error, please install Astra CLI manually
+> with `curl -Ls "https://dtsx.io/get-astra-cli" | bash`
+> and retry the above commands.
+
 You can test that everything works by inspecting your database:
 
 ```
@@ -474,14 +478,14 @@ connection information (keyspace name, access token, location of the
 [secure connect bundle](https://awesome-astra.github.io/docs/pages/astra/download-scb/))
 available as environment variables:
 
-```
-# TODO finalize this command!
+<!-- # TODO finalize this command!
 # astra db create-dot-env workshops
 # It will create .env with the DB variables and get the bundle
 # in a standard location + set its path here in the .env 
-
 # For the time being, replace it with the following instructions:
+ -->
 
+```
 astra db download-scb workshops -f secure-connect-workshops.zip
 echo "ASTRA_DB_SECURE_BUNDLE_PATH=\"$PWD/secure-connect-workshops.zip\"" > .env
 echo "ASTRA_DB_KEYSPACE=\"spamclassifier\"" >> .env
