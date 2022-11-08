@@ -455,13 +455,13 @@ of your DB Admin Token (i.e. the string starting with `AstraCS:...`):
 astra setup
 ```
 
-<details><summary>Show me the setup step</summary>
-    <img src="images/astra-setup-token.png?raw=true" />
-</details>
-
 > If you get a "command not found" error, please install Astra CLI manually
 > with `curl -Ls "https://dtsx.io/get-astra-cli" | bash`
 > and retry the above commands.
+
+<details><summary>Show me the setup step</summary>
+    <img src="images/astra-setup-token.png?raw=true" />
+</details>
 
 You can test that everything works by inspecting your database:
 
