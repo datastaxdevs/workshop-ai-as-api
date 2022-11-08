@@ -138,7 +138,7 @@ _**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all
 <img src="images/astranaut.png?raw=true" width="50" /> Start by Ctrl-clicking on the orange button (to open in a new tab)
 and then follow the instructions below:
 
-<a href="https://astra.dev/yt-11-9"><img src="images/create_astra_db_button.png?raw=true" /></a>
+<a href="https://astra.dev/yt-11-09"><img src="images/create_astra_db_button.png?raw=true" /></a>
 
 - create an Astra DB instance [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-instance/), in the GCP cloud provider, with database name = `workshops` and keyspace = `spamclassifier`.;
 - generate and retrieve a DB Token [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-token/). **Important**: use the role "DB Administrator" for the token. Save the token in a secure place for later use. _Note: the token auto-generated while creating the database has not enough permissions for our purposes today, you can disregard it._
