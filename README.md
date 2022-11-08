@@ -138,7 +138,7 @@ _**`ASTRA DB`** is the simplest way to run Cassandra with zero operations at all
 <img src="images/astranaut.png?raw=true" width="50" /> Start by Ctrl-clicking on the orange button (to open in a new tab)
 and then follow the instructions below:
 
-<a href="https://astra.dev/2-23"><img src="images/create_astra_db_button.png?raw=true" /></a>
+<a href="https://astra.dev/yt-11-9"><img src="images/create_astra_db_button.png?raw=true" /></a>
 
 - create an Astra DB instance [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-instance/), in the GCP cloud provider, with database name = `workshops` and keyspace = `spamclassifier`.;
 - generate and retrieve a DB Token [as explained here](https://awesome-astra.github.io/docs/pages/astra/create-token/). **Important**: use the role "DB Administrator" for the token. Save the token in a secure place for later use. _Note: the token auto-generated while creating the database has not enough permissions for our purposes today, you can disregard it._
@@ -510,7 +510,7 @@ settings and so on.
 
 > If you don't have (or don't want to use) the actual trained model at hand,
 > you can switch to a lightweight mock by setting
-> `MOCK_MODEL_CLASS="0"` in this dot-env file. The API part of the practice
+> `MOCK_MODEL_CLASS="1"` in this dot-env file. The API part of the practice
 > would "not even notice the change".
 
 ### Baby steps: a minimal API
@@ -911,7 +911,7 @@ construct its pieces as the data arrives from the database.
 <img src="images/astranaut.png?raw=true" width="50" /> Try the `/recent_log`
 endpoint in Swagger and check the output matches your previous experiments.
 
-Go back, for this endpoint, to the `bash` consoleas well,
+Go back, for this endpoint, to the `bash` console as well,
 and check the result of:
 
 ```
@@ -982,7 +982,7 @@ And, similarly, look at the recent call log for the "localhost" caller:
 ```
 SELECT * FROM spam_calls_per_caller
     WHERE caller_id = '127.0.0.1'
-    AND called_hour='2022-02-23 17:00:00.000Z';
+    AND called_hour='2022-11-09 17:00:00.000Z';
 ```
 
 > For the above to show results, you have to take care of adapting the
