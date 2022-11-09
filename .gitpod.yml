@@ -23,9 +23,15 @@ tasks:
       gp open README.md
   - name: work-shell
     before: |
-      curl -Ls "https://dtsx.io/get-astra-cli" | bash
-      . ~/.bashrc
+      printf 'export PATH="$HOME%s:$PATH"\n' "/.astra/cli" >> $HOME/.bashrc
+      printf 'unset JAVA_TOOL_OPTIONS\n' >> $HOME/.bashrc
+      curl -Ls "https://dtsx.io/get-astra-cli-alpha6" | bash >> ./install.log
+      # curl -Ls "https://dtsx.io/get-astra-cli" | bash
+      # source /home/gitpod/.bashrc
     command: |
+      unset JAVA_TOOL_OPTIONS
+      source /home/gitpod/.astra/cli/astra-init.sh
+      source /home/gitpod/.bashrc
       cd /workspace/workshop-ai-as-api
       clear
       echo -e "\n\n\t\t** READY TO START... **\n\n"
