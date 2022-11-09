@@ -451,13 +451,12 @@ of commands.
 of your DB Admin Token (i.e. the string starting with `AstraCS:...`):
 
 ```
-. ~/.bashrc
 astra setup
 ```
 
 > If you get a "command not found" error, please install Astra CLI manually
 > with `curl -Ls "https://dtsx.io/get-astra-cli" | bash`
-> and retry the above commands.
+> and retry the above commands after running `source ~/.bashrc`.
 
 <details><summary>Show me the setup step</summary>
     <img src="images/astra-setup-token.png?raw=true" />
@@ -475,15 +474,18 @@ astra db get workshops
 
 <img src="images/astranaut.png?raw=true" width="50" /> At this point you can have the CLI prepare a `.env` file with all required
 connection information (keyspace name, access token, location of the
-[secure connect bundle](https://awesome-astra.github.io/docs/pages/astra/download-scb/))
+[secure connect bundle](https://awesome-astra.github.io/docs/pages/astra/download-scb/) which it downloads automatically)
 available as environment variables:
 
-<!-- # TODO finalize this command!
-# astra db create-dot-env workshops
-# It will create .env with the DB variables and get the bundle
-# in a standard location + set its path here in the .env 
-# For the time being, replace it with the following instructions:
- -->
+```
+astra db create-dotenv -k spamclassifier workshops
+```
+
+<details><summary>Show me an alternative to the above command</summary>
+    
+The `create-dotenv` runs only with the newest Astra CLI. In case you experience trouble,
+make sure you have a working CLI (`curl -Ls "https://dtsx.io/get-astra-cli" | bash`
+and then `source ~/.bashrc`) and then run the following:
 
 ```
 astra db download-scb workshops -f secure-connect-workshops.zip
@@ -493,6 +495,11 @@ echo "ASTRA_DB_KEYSPACE=\"spamclassifier\"" >> .env
 # REPLACE YOUR "AstraCS:..." TOKEN IN THE FOLLOWING
 echo "ASTRA_DB_APPLICATION_TOKEN=\"AstraCS:...\"" >> .env
 ```
+
+You are now good to go, as long as your `.env` defines the following variables:
+`ASTRA_DB_SECURE_BUNDLE_PATH`, `ASTRA_DB_KEYSPACE`, `ASTRA_DB_APPLICATION_TOKEN`.
+
+</details>
 
 <img src="images/astranaut.png?raw=true" width="50" /> Let us add to this file a couple of settings specific to our API:
 
