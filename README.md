@@ -146,7 +146,7 @@ and then follow the instructions below:
 > **⚠️ Important**
 > ```
 > The instructor will show the token creation on screen,
-> but will then have to destroy it immediately for security reasons.
+> but will then destroy it immediately for security reasons.
 > ```
 
 ## Load the project into Gitpod
