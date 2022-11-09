@@ -28,6 +28,11 @@ tasks:
       curl -Ls "https://dtsx.io/get-astra-cli-alpha6" | bash >> ./install.log
       # curl -Ls "https://dtsx.io/get-astra-cli" | bash
       # source /home/gitpod/.bashrc
+    init: |
+      sed -i '1,$s/sdkman_auto_answer=false/sdkman_auto_answer=true/' /home/gitpod/.sdkman/etc/config 
+      sed -i '1,$s/sdkman_selfupdate_enable=true/sdkman_selfupdate_enable=false/' /home/gitpod/.sdkman/etc/config 
+      sdk install java
+      cd /workspace/workshop-ai-as-api
     command: |
       unset JAVA_TOOL_OPTIONS
       source /home/gitpod/.astra/cli/astra-init.sh
