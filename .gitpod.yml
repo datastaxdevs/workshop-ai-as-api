@@ -23,18 +23,11 @@ tasks:
       gp open README.md
   - name: work-shell
     before: |
-      printf 'export PATH="$HOME%s:$PATH"\n' "/.astra/cli" >> $HOME/.bashrc
-      printf 'unset JAVA_TOOL_OPTIONS\n' >> $HOME/.bashrc
-      curl -Ls "https://dtsx.io/get-astra-cli-alpha6" | bash >> ./install.log
-      # curl -Ls "https://dtsx.io/get-astra-cli" | bash
-      # source /home/gitpod/.bashrc
+      curl -Ls "https://dtsx.io/get-astra-cli" | bash
+      source /home/gitpod/.bashrc
     init: |
-      sed -i '1,$s/sdkman_auto_answer=false/sdkman_auto_answer=true/' /home/gitpod/.sdkman/etc/config 
-      sed -i '1,$s/sdkman_selfupdate_enable=true/sdkman_selfupdate_enable=false/' /home/gitpod/.sdkman/etc/config 
-      sdk install java
       cd /workspace/workshop-ai-as-api
     command: |
-      unset JAVA_TOOL_OPTIONS
       source /home/gitpod/.astra/cli/astra-init.sh
       source /home/gitpod/.bashrc
       cd /workspace/workshop-ai-as-api
