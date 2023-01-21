@@ -4,7 +4,7 @@
   "skillLevel": "Intermediate",
   "language":[],
   "stack":[],
-  "heroImage": "https://github.com/datastaxdevs/workshop-ai-as-api/raw/main/images/nlp-classifier-api-cover.png"
+  "heroImage": "https://github.com/datastaxdevs/workshop-ai-as-api/raw/main/images/nlp-classifier-api-cover.png",
   "githubUrl": "https://github.com/datastaxdevs/workshop-ai-as-api",
   "youTubeUrl": [ "https://www.youtube.com/watch?v=sKa1uPjIBC0"],
   "tags": [
