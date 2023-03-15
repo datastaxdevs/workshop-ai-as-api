@@ -6,9 +6,19 @@
 import pathlib
 from fastapi import FastAPI
 
-from api.AIModel import AIModel
 from api.config import getSettings
+from api.AIModel import AIModel
 from api.schema import SingleTextQuery, MultipleTextQuery
+
+
+# mockup switch in case one has trouble getting the trained model and
+# wants to play with the API nevertheless (see the .env parameters):
+settings = getSettings()
+if settings.mock_model_class:
+    from api.MockSpamAIModel import MockSpamAIModel as AIModel
+else:
+    from api.AIModel import AIModel
+
 
 miniapp = FastAPI()
 

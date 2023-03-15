@@ -300,7 +300,7 @@ The dataset preparation starts with the CSV file you saw earlier
 and ends up exporting the new data format in the `training/prepared_dataset`
 directory. Two observations are in order:
 
-- the "big matrix of numbers" encoding the messages and the (narrower) one containing their spam/ham status are useless without the tokenizer: after all, to process a new message you would need to make it into a sequence of numbers using the same mapping. For this reason, it is important to export the tokenizer as well, in order to later _use_ the classifier.
+- the "big matrix of numbers" encoding the messages and the (narrower) one containing their spam/ham status are useless without the tokenizer: after all, to process a new message you would need to make it into a sequence of numbers using this very same mapping. For this reason, it is important to export the tokenizer as well, in order to later _use_ the classifier.
 - the `pickle` protocol used in writing the reformulated data is strictly Python-specific and should not be treated as a long-term (or interoperable!) format. Please see next step (below) for a sensible way to store model, tokenizer and metadata on disk.
 
 Try to have a look at the `pickle` file created by the `prepareDataset.py` script. Well,
@@ -308,9 +308,9 @@ it's a binary file indeed, and there is not much to be seen there. Let's move al
 
 When you are finished, choose "Close and Halt" from the notebook "File" menu;
 
-At the end, close main Jupyter the browser tab and stop the notebook backend that was running in the console (`Ctrl-C` + `y` for confirmation);
-
 > If you are running **on your local machine**, simply run `jupyter notebook` in a terminal window and the main Jupyter browser tab should open already for you.
+
+_You may now close the main Jupyter browser tab and stop the notebook backend that was running in the console (`Ctrl-C`, then `y` for confirmation). Remember you can use Gitpod's "console switcher" on the bottom right to get to the `notebook-shell` console._
 
 ### Train the model
 
@@ -363,7 +363,7 @@ saved in the `training/trained_model_v1` directory.
 > [hemidactylus/mlops-speedrun-spamclassifier](https://github.com/hemidactylus/mlops-speedrun-spamclassifier),
 > which builds from the one you are reading.
 
-Take a look in the output directory: there should be
+Take a look in the output directory (`ls training/trained_model_v1`): there should be
 
 - a (small) JSON file with some metadata describing some features of the model;
 - a (larger) JSON file containing the full definition of the tokenizer. This has been created, and will be loaded, using helper functions provided with the tokenizer itself for our convenience;
@@ -373,7 +373,7 @@ Take a look in the output directory: there should be
 > the hardware resources are not enough, whatever), no fear! You will still be
 > able to complete the practice and play with the API using a lightweight
 > _mock model class_. Just remember, when starting the API, to edit the `.env`
-> file so that it reads `MOCK_MODEL_CLASS="0"`.
+> file so that it reads `MOCK_MODEL_CLASS="1"`.
 
 
 ### Test the trained model
@@ -827,16 +827,16 @@ If you are running locally that's the URL you should open, end of story.
 
 If you are working in Gitpod, however, the notion of "localhost" makes sense
 only within Gitpod itself. Luckily for you, Gitpod maps local ports to actual domain
-names (that can optionally be made publicly accessible as well).
+names accessible from your browser.
 
-<img src="images/astranaut.png?raw=true" width="50" /> To find out the URL for your docs, then, run this command in the `bash` shell:
+<img src="images/astranaut.png?raw=true" width="50" /> To open the UI, run:
 
 ```
-echo `gp url 8000`/docs
+SWAGGER_URL=`gp url 8000`/docs ; echo $SWAGGER_URL ; gp preview --external $SWAGGER_URL
 ```
 
-and open the output URL in a new tab (it would look more or less
-like `https://8000-<something-something>.gitpod.io/docs`).
+and then **check your popup blocker**. Or you can directly copy the URL printed
+in the console and open it manually in a new tab.
 You will see the Swagger UI: you can now browse the API documentation and even
 try the endpoints out.
 
@@ -939,11 +939,11 @@ Swagger invocation of the `/` endpoint and the result of
 
 <img src="images/astranaut.png?raw=true" width="50" /> You can also
 directly look at the contents of the tables on Astra DB. To do so,
-invoke the Astra CLI to open a `cqlsh` console connected to the database:
+invoke the Astra CLI to open a `cqlsh` console connected to the database and set to work in the desired keyspace:
 
 ```
 . ~/.bashrc
-astra db cqlsh workshops
+astra db cqlsh workshops -k spamclassifier
 ```
 
 <details><summary>Click for an alternative way: the CQL Web Console in Astra</summary>
@@ -966,13 +966,7 @@ waiting for your input.
 > See [here](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlCommandsTOC.html)
 > for more references to the CQL language commands.
 
-Start by telling the console that you will be using the `spamclassifier` keyspace:
-
-```
-USE spamclassifier;
-```
-
-Which tables are there?
+Start by checking which tables are there?
 
 ```
 DESC TABLES;
@@ -981,7 +975,10 @@ DESC TABLES;
 List some sample records from the cache table:
 
 ```
-SELECT * FROM spam_cache_items LIMIT 10;
+SELECT
+    model_version, input, result, confidence, DATEOF(stored_at)
+FROM spam_cache_items
+LIMIT 10;
 ```
 
 And, similarly, look at the recent call log for the "localhost" caller:
@@ -993,8 +990,9 @@ SELECT * FROM spam_calls_per_caller
 ```
 
 > For the above to show results, you have to take care of adapting the
-> date and (whole) hour to current time, and possibly the `caller_id`
-> could be edited to reflect what you see from the Swagger `/` response.
+> date and (whole) hour to the results of previous query;
+> also, possibly the `caller_id`
+> may have to be edited to reflect what you see from the Swagger `/` response.
 
 The reason why the call log is partitioned in hourly chunks (and not only
 by `caller_id`) has to do with the way the Cassandra database, on which Astra DB
