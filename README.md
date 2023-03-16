@@ -201,6 +201,10 @@ experience with VSCode. Feel free to play around a bit!
 
 </details>
 
+*Note*: make sure you locate the "console switcher" on the bottom rght;
+all commands, unless specified otherwise, are to be launched in the
+"work-shell" console.
+
 
 
 ## Train the model
@@ -553,7 +557,7 @@ You'll use the command-line tool `curl` to issue simple HTTP requests at your
 running API (but, of course, any tool capable of doing GETs and POSTs would do).
 
 <img src="images/astranaut.png?raw=true" width="50" /> While the API is running, switch to the other `bash` console in Gitpod (using
-the console switcher at the bottom right of your IDE) and try the following command:
+the console switcher at the bottom right of your IDE) and try the following command **in the curl-shell console**:
 
 ```
 curl -s http://localhost:8000 | python -mjson.tool
@@ -575,7 +579,7 @@ code. `pydantic` pairs very well with FastAPI ([documentation](https://fastapi.t
 > variable `API_NAME` taking precedence over the dot-env file.
 
 <img src="images/astranaut.png?raw=true" width="50" /> This minimal API already accomplishes the basic task for today: namely,
-it makes the spam classifier available as an API. Let's try with some POST requests:
+it makes the spam classifier available as an API. Let's try with some POST requests (**curl-shell console**):
 
 ```
 # single-text endpoint
@@ -622,7 +626,8 @@ FastAPI will try to match the function arguments with the request parameters.
 To make this matching more effective, and gain input validation "for free" with
 that, the code defines "models" in the `pydantic` sense and specifies them as the types
 for the endpoint functions. Try to invoke the API as follows and see what happens
-(note the empty body):
+(note the empty body; **launch in the curl-shell console**):
+
 ```
 curl -v -s -XPOST \
   localhost:8000/prediction -d '{}' \
@@ -743,7 +748,7 @@ For illustrative purposes, the API also has a GET endpoint for requesting
 declared as endpoint dependencies will be filled also using query
 parameters, if they are available and the names match. In this way, the
 GET endpoint will work, and will internally be able to use a `SingleTextQuery`,
-even when invoked as follows (try it!)
+even when invoked as follows (try it! **Use the curl-shell console**)
 
 ```
 curl -s \
@@ -762,7 +767,7 @@ for more details on this).
 
 Without further ado, it is time to start the full-fledged API.
 
-<img src="images/astranaut.png?raw=true" width="50" /> Hit Ctrl-C in the API console (if you didn't already stop the "minimal API")
+<img src="images/astranaut.png?raw=true" width="50" /> Hit Ctrl-C in the work console (if you didn't already stop the "minimal API")
 and launch the following command this time (you're now closer to "production",
 so you do not want the `--reload` flag any more):
 
@@ -780,7 +785,7 @@ see something like `Uvicorn running on http://127.0.0.1:8000` being printed).
 
 <img src="images/astranaut.png?raw=true" width="50" /> Quickly launch a couple of requests with `curl` on the `bash` console
 (the same requests already sent to the minimal API earlier) and check the
-output:
+output (**curl-shell console**):
 
 ```
 # get basic info
@@ -798,7 +803,7 @@ you will be then able to read its `client` member to access the caller IP addres
 > header instead that has to be read within the Python code.
 > See [this](https://stackoverflow.com/questions/60098005/fastapi-starlette-get-client-real-ip) for more information.
 
-<img src="images/astranaut.png?raw=true" width="50" /> Now for an actual request to process some text:
+<img src="images/astranaut.png?raw=true" width="50" /> Now for an actual request to process some text (**curl-shell console**):
 
 ```
 # single-text endpoint
@@ -829,7 +834,7 @@ If you are working in Gitpod, however, the notion of "localhost" makes sense
 only within Gitpod itself. Luckily for you, Gitpod maps local ports to actual domain
 names accessible from your browser.
 
-<img src="images/astranaut.png?raw=true" width="50" /> To open the UI, run:
+<img src="images/astranaut.png?raw=true" width="50" /> To open the UI, run (**curl-shell console**):
 
 ```
 SWAGGER_URL=`gp url 8000`/docs ; echo $SWAGGER_URL ; gp preview --external $SWAGGER_URL
@@ -872,6 +877,7 @@ You will see that both lines are new to the classifier, indeed their `from_cache
 returns `false`.
 
 Now add a third line and re-issue the request, with body
+
 ```
 {
   "texts": [
@@ -887,6 +893,7 @@ pattern this time. (You can also try adding `"skip_cache": true` to the body
 and see what happens to the response).
 
 Finally, reinstate all lines of the stanza (so far only the odd ones were passed!):
+
 ```
 {
   "texts": [
@@ -919,7 +926,7 @@ construct its pieces as the data arrives from the database.
 endpoint in Swagger and check the output matches your previous experiments.
 
 Go back, for this endpoint, to the `bash` console as well,
-and check the result of:
+and check (**in the curl-shell console**) the result of:
 
 ```
 curl -s localhost:8000/recent_log | python -mjson.tool
@@ -938,7 +945,7 @@ Swagger invocation of the `/` endpoint and the result of
 #### Inspect the database
 
 <img src="images/astranaut.png?raw=true" width="50" /> You can also
-directly look at the contents of the tables on Astra DB. To do so,
+directly look at the contents of the tables on Astra DB. To do so, **go to the curl-console** to
 invoke the Astra CLI to open a `cqlsh` console connected to the database and set to work in the desired keyspace:
 
 ```
