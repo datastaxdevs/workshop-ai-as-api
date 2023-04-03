@@ -1,3 +1,4 @@
+image: gitpod/workspace-full:2023-02-27-14-39-56
 tasks:
   - name: notebook-shell
     before: |
