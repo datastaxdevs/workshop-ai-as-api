@@ -2,14 +2,14 @@
 
 <!-- Time: *50 minutes*. Difficulty: *Intermediate*. -->
 
-**The full course, including hands-on instructions, is on DataStax Academy. There,
+**The full course, including hands-on instructions, is on [DataStax Academy](https://datastax.academy/course/view.php?id=10). There,
 you will learn how to work in the Interactive Lab**.
 
-_For best results: (1) Check the course [start page](https://datastax.academy/course/search.php?search=w026)._
-_(2) Register to the Academy. (3) Enroll in the course. (4) Start **learning** and **practicing**!_
+_For best results: (1) Check the course [start page](https://datastax.academy/course/view.php?id=10)._
+_(2) Enroll in the course. (3) Start **learning** and **practicing**!_
 
 <p align="center">
-<a href="https://datastax.academy/course/search.php?search=w026">
+<a href="https://datastax.academy/course/view.php?id=10">
 <img src="images/launch-course.png?raw=true" width="200" alt="Start the course on DataStax Academy" />        
 </a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
